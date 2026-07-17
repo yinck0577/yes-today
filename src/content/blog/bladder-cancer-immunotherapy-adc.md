@@ -2,7 +2,7 @@
 title: '膀胱癌治療有新進展！FDA核准免疫療法＋ADC，從手術前一路用到手術後'
 description: 'FDA於2026年7月核准pembrolizumab搭配enfortumab vedotin，用於成人肌肉侵犯性膀胱癌的手術前後圍手術期治療，治療思維從先化療再開刀走向整合治療。'
 pubDate: 'Jul 17 2026'
-heroImage: 'https://images.unsplash.com/photo-1551601651-09492b5468b6?fm=jpg&q=80&w=1200&auto=format&fit=crop'
+heroImage: '/bladder-pain-illustration.svg'
 ---
 
 膀胱癌治療再迎來新進展。[美國食品藥物管理局（FDA）](https://www.fda.gov/drugs/resources-information-approved-drugs/fda-approves-pembrolizumab-or-pembrolizumab-and-berahyaluronidase-alfa-pmph-each-enfortumab-vedotin)於2026年7月10日核准免疫治療藥物 pembrolizumab 搭配抗體藥物複合體（ADC）enfortumab vedotin，用於成人肌肉侵犯性膀胱癌（Muscle-Invasive Bladder Cancer，MIBC）的手術前新輔助治療，並在膀胱切除術後繼續進行輔助治療。
@@ -15,7 +15,7 @@ heroImage: 'https://images.unsplash.com/photo-1551601651-09492b5468b6?fm=jpg&q=8
 * 手術：進行膀胱切除術
 * 手術後：持續接受免疫療法＋ADC輔助治療，之後依療程接受免疫治療
 
-![手術室情境圖](https://images.unsplash.com/photo-1551601651-09492b5468b6?fm=jpg&q=80&w=1600&auto=format&fit=crop)
+![按壓下腹部示意圖](/bladder-pain-illustration.svg)
 
 ## 什麼是肌肉侵犯性膀胱癌？
 
