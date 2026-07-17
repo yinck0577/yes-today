@@ -1,6 +1,6 @@
 ---
 import HeaderLink from './HeaderLink.astro';
-import { SITE_TITLE } from '../consts';
+import { SITE_TITLE, CATEGORIES } from '../consts';
 ---
 
 <header>
@@ -40,6 +40,13 @@ import { SITE_TITLE } from '../consts';
 				>
 			</a>
 		</div>
+	</nav>
+	<nav class="category-nav">
+		{
+			CATEGORIES.map((c) => (
+				<a href={`/category/${c.slug}/`}>{c.name}</a>
+			))
+		}
 	</nav>
 </header>
 <style>
@@ -87,6 +94,26 @@ import { SITE_TITLE } from '../consts';
 	.social-links,
 	.social-links a {
 		display: flex;
+	}
+	.category-nav {
+		display: flex;
+		gap: 0.25em;
+		overflow-x: auto;
+		border-top: 1px solid rgb(var(--gray-light));
+		padding: 0.4em 0;
+	}
+	.category-nav a {
+		flex: none;
+		padding: 0.3em 0.7em;
+		font-size: 0.85em;
+		color: rgb(var(--gray-dark));
+		text-decoration: none;
+		white-space: nowrap;
+		border-radius: 20px;
+	}
+	.category-nav a:hover {
+		background: rgb(var(--gray-light));
+		color: var(--accent);
 	}
 	@media (max-width: 720px) {
 		.social-links {
