@@ -1,13 +1,39 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
+import { getCategoryName } from '../consts';
 
-type Props = CollectionEntry<'blog'>['data'];
+type Props = CollectionEntry<'blog'>['data'] & { currentId?: string };
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, category, currentId } = Astro.props;
+
+const allPosts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+const latestOverall = allPosts[0];
+const latestPick =
+	latestOverall && latestOverall.id === currentId ? allPosts[1] : latestOverall;
+
+function shuffle<T>(arr: T[]): T[] {
+	const a = [...arr];
+	for (let i = a.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[a[i], a[j]] = [a[j], a[i]];
+	}
+	return a;
+}
+
+const sameCategoryPool = allPosts.filter(
+	(p) => p.id !== currentId && p.data.category === category && (!latestPick || p.id !== latestPick.id),
+);
+const randomPicks = shuffle(sameCategoryPool).slice(0, 2);
+
+const related = [latestPick, ...randomPicks].filter(Boolean) as typeof allPosts;
 ---
 
 <html lang="en">
@@ -51,6 +77,64 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 			.last-updated-on {
 				font-style: italic;
 			}
+			.related {
+				width: 720px;
+				max-width: calc(100% - 2em);
+				margin: 2em auto 3em auto;
+				padding: 1em;
+				border-top: 1px solid rgb(var(--gray-light));
+			}
+			.related h2 {
+				font-size: 1.3rem;
+				margin: 1em 0 1em 0;
+			}
+			.related-list {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				display: grid;
+				grid-template-columns: repeat(3, 1fr);
+				gap: 1.5em;
+			}
+			.related-list li a {
+				display: block;
+				text-decoration: none;
+			}
+			.related-list img {
+				width: 100%;
+				border-radius: 10px;
+				margin-bottom: 0.5em;
+				display: block;
+			}
+			.related-badge {
+				display: inline-block;
+				background: var(--accent);
+				color: #fff;
+				font-size: 0.7rem;
+				font-weight: 700;
+				padding: 0.15em 0.6em;
+				border-radius: 4px;
+				margin-bottom: 0.4em;
+			}
+			.related-title {
+				margin: 0;
+				font-size: 0.95rem;
+				line-height: 1.35;
+				color: rgb(var(--black));
+			}
+			.related-date {
+				margin: 0.3em 0 0 0;
+				color: rgb(var(--gray));
+				font-size: 0.8rem;
+			}
+			.related-list a:hover .related-title {
+				color: var(--accent);
+			}
+			@media (max-width: 720px) {
+				.related-list {
+					grid-template-columns: 1fr;
+				}
+			}
 		</style>
 	</head>
 
@@ -79,6 +163,31 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 					<slot />
 				</div>
 			</article>
+			{
+				related.length > 0 && (
+					<div class="related">
+						<h2>延伸閱讀</h2>
+						<ul class="related-list">
+							{related.map((post) => (
+								<li>
+									<a href={`/blog/${post.id}/`}>
+										{post.data.heroImage && (
+											<img width={360} height={200} src={post.data.heroImage} alt="" />
+										)}
+										{post.data.category && (
+											<span class="related-badge">{getCategoryName(post.data.category)}</span>
+										)}
+										<h4 class="related-title">{post.data.title}</h4>
+										<p class="related-date">
+											<FormattedDate date={post.data.pubDate} />
+										</p>
+									</a>
+								</li>
+							))}
+						</ul>
+					</div>
+				)
+			}
 		</main>
 		<Footer />
 	</body>
