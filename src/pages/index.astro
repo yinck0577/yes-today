@@ -2,7 +2,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import { SITE_TITLE, SITE_DESCRIPTION, getCategoryName } from '../consts';
 import { getCollection } from 'astro:content';
 import FormattedDate from '../components/FormattedDate.astro';
 
@@ -61,6 +61,16 @@ const rest = posts.slice(1);
 				color: rgb(var(--gray));
 				font-size: 0.9rem;
 			}
+			.category-badge {
+				display: inline-block;
+				background: var(--accent);
+				color: #fff;
+				font-size: 0.75rem;
+				font-weight: 700;
+				padding: 0.2em 0.7em;
+				border-radius: 4px;
+				margin-bottom: 0.5em;
+			}
 			a.card-link {
 				text-decoration: none;
 				display: block;
@@ -113,6 +123,9 @@ const rest = posts.slice(1);
 						<div class="featured">
 							<img width={720} height={360} src={featured.data.heroImage} alt="" />
 							<div>
+								{featured.data.category && (
+									<span class="category-badge">{getCategoryName(featured.data.category)}</span>
+								)}
 								<p class="date">
 									<FormattedDate date={featured.data.pubDate} />
 								</p>
@@ -131,6 +144,9 @@ const rest = posts.slice(1);
 						<li>
 							<a class="card-link" href={`/blog/${post.id}/`}>
 								<img width={360} height={200} src={post.data.heroImage} alt="" />
+								{post.data.category && (
+									<span class="category-badge">{getCategoryName(post.data.category)}</span>
+								)}
 								<p class="date">
 									<FormattedDate date={post.data.pubDate} />
 								</p>
