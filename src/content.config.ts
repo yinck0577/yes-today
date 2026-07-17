@@ -13,6 +13,9 @@ const blog = defineCollection({
 		pubDate: z.coerce.date(),
 		updatedDate: z.coerce.date().optional(),
 		heroImage: z.string().optional(),
+		// Category slug, see CATEGORIES in ../consts.ts. Optional so existing
+		// posts without a category keep working.
+		category: z.string().optional(),
 	}),
 });
 
