@@ -1,7 +1,7 @@
 ---
 title: '中華郵政壽險指定聯絡人怎麼辦？65歲保戶防詐通知機制、資格與申辦文件'
 description: '中華郵政壽險新增指定聯絡人機制，65歲以上保戶辦理保單借款、部分提領或終止契約等業務時，將通知指定親屬協助關懷防詐。本文整理資格、申辦方式、通知時機與注意事項。'
-pubDate: 'Jul 17 2026'
+pubDate: 'Jul 17 2026 13:00:00'
 heroImage: '/20260717-post-life-insurance.png'
 category: 'business'
 ---
