@@ -1,7 +1,7 @@
 ---
 title: '未來一週高溫炎熱怎麼防？午後雷陣雨時間、36度高溫區與防熱傷害重點'
 description: '中央氣象署提醒未來一週高溫炎熱，局部地區可能出現36度以上高溫，並須留意午後雷陣雨。本文整理高溫區域、降雨時段、防熱傷害與官方查詢管道。'
-pubDate: 'Jul 17 2026'
+pubDate: 'Jul 17 2026 11:00:00'
 heroImage: '/20260717-taiwan-weekly-hot-weather-hero.png'
 category: 'life'
 ---
