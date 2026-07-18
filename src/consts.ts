@@ -14,7 +14,6 @@ export const CATEGORIES = [
 	{ slug: "society", name: "社會" },
 	{ slug: "health", name: "健康" },
 	{ slug: "pet", name: "寵物" },
-	{ slug: "culture", name: "文化" },
 	{ slug: "arts", name: "藝文" },
 	{ slug: "sports", name: "運動" },
 	{ slug: "entertainment", name: "娛樂" },
