@@ -38,13 +38,13 @@ const rest = posts.slice(1);
 				border-bottom: 1px solid rgb(var(--gray-light));
 				padding-bottom: 2em;
 			}
-			.slide {
+			.carousel a.slide {
 				display: none;
 				grid-template-columns: 1.2fr 1fr;
 				gap: 2em;
 				align-items: center;
 			}
-			.slide.is-active {
+			.carousel a.slide.is-active {
 				display: grid;
 			}
 			.slide img {
@@ -76,6 +76,35 @@ const rest = posts.slice(1);
 				padding: 0.2em 0.7em;
 				border-radius: 4px;
 				margin-bottom: 0.5em;
+			}
+			.carousel-arrow {
+				position: absolute;
+				top: 40%;
+				transform: translateY(-50%);
+				z-index: 5;
+				width: 36px;
+				height: 36px;
+				border-radius: 50%;
+				border: 1px solid rgb(var(--gray-light));
+				background: rgba(255, 255, 255, 0.9);
+				color: rgb(var(--gray-dark));
+				font-size: 1.3rem;
+				line-height: 1;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				box-shadow: var(--box-shadow);
+			}
+			.carousel-arrow:hover {
+				color: var(--accent);
+				border-color: var(--accent);
+			}
+			.carousel-arrow.prev {
+				left: -18px;
+			}
+			.carousel-arrow.next {
+				right: -18px;
 			}
 			.carousel-dots {
 				display: flex;
@@ -131,11 +160,17 @@ const rest = posts.slice(1);
 				color: var(--accent);
 			}
 			@media (max-width: 720px) {
-				.slide.is-active {
+				.carousel a.slide.is-active {
 					grid-template-columns: 1fr;
 				}
 				.news-list {
 					grid-template-columns: 1fr;
+				}
+				.carousel-arrow.prev {
+					left: 0;
+				}
+				.carousel-arrow.next {
+					right: 0;
 				}
 			}
 		</style>
@@ -145,6 +180,11 @@ const rest = posts.slice(1);
 		<main>
 			<h2 class="section-title">今日焦點</h2>
 			<div class="carousel" id="hero-carousel">
+				{
+					featuredSlides.length > 1 && (
+						<button type="button" class="carousel-arrow prev" aria-label="上一則">‹</button>
+					)
+				}
 				{
 					featuredSlides.map((post, i) => (
 						<a class={`card-link slide${i === 0 ? ' is-active' : ''}`} href={`/blog/${post.id}/`} data-slide={i}>
@@ -163,6 +203,11 @@ const rest = posts.slice(1);
 							</div>
 						</a>
 					))
+				}
+				{
+					featuredSlides.length > 1 && (
+						<button type="button" class="carousel-arrow next" aria-label="下一則">›</button>
+					)
 				}
 				{
 					featuredSlides.length > 1 && (
@@ -201,17 +246,27 @@ const rest = posts.slice(1);
 			if (carousel) {
 				const slides = Array.from(carousel.querySelectorAll('.slide'));
 				const dots = Array.from(carousel.querySelectorAll('.carousel-dots button'));
+				const prevBtn = carousel.querySelector('.carousel-arrow.prev');
+				const nextBtn = carousel.querySelector('.carousel-arrow.next');
 				let current = 0;
 				let timer;
 
 				function show(index) {
-					slides.forEach((s, i) => s.classList.toggle('is-active', i === index));
-					dots.forEach((d, i) => d.classList.toggle('is-active', i === index));
+					slides.forEach(function (s, i) {
+						s.classList.toggle('is-active', i === index);
+					});
+					dots.forEach(function (d, i) {
+						d.classList.toggle('is-active', i === index);
+					});
 					current = index;
 				}
 
 				function next() {
 					show((current + 1) % slides.length);
+				}
+
+				function prev() {
+					show((current - 1 + slides.length) % slides.length);
 				}
 
 				function start() {
@@ -224,14 +279,34 @@ const rest = posts.slice(1);
 					if (timer) clearInterval(timer);
 				}
 
+				function restart() {
+					stop();
+					start();
+				}
+
 				dots.forEach(function (dot, i) {
-					dot.addEventListener('click', (e) => {
+					dot.addEventListener('click', function (e) {
 						e.preventDefault();
-						stop();
 						show(i);
-						start();
+						restart();
 					});
 				});
+
+				if (prevBtn) {
+					prevBtn.addEventListener('click', function (e) {
+						e.preventDefault();
+						prev();
+						restart();
+					});
+				}
+
+				if (nextBtn) {
+					nextBtn.addEventListener('click', function (e) {
+						e.preventDefault();
+						next();
+						restart();
+					});
+				}
 
 				start();
 			}
