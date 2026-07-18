@@ -10,7 +10,7 @@ const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
-const featured = posts[0];
+const featuredSlides = posts.slice(0, 5);
 const rest = posts.slice(1);
 ---
 
@@ -33,26 +33,32 @@ const rest = posts.slice(1);
 				padding-bottom: 0.4em;
 				margin: 1.5em 0 1em 0;
 			}
-			.featured {
-				display: grid;
-				grid-template-columns: 1.2fr 1fr;
-				gap: 2em;
-				align-items: center;
+			.carousel {
+				position: relative;
 				border-bottom: 1px solid rgb(var(--gray-light));
 				padding-bottom: 2em;
 			}
-			.featured img {
+			.slide {
+				display: none;
+				grid-template-columns: 1.2fr 1fr;
+				gap: 2em;
+				align-items: center;
+			}
+			.slide.is-active {
+				display: grid;
+			}
+			.slide img {
 				width: 100%;
 				border-radius: 12px;
 				display: block;
 			}
-			.featured .title {
+			.slide .title {
 				margin: 0 0 0.4em 0;
 				font-size: 1.9rem;
 				line-height: 1.2;
 				color: rgb(var(--black));
 			}
-			.featured .description {
+			.slide .description {
 				color: rgb(var(--gray-dark));
 				line-height: 1.6;
 			}
@@ -70,6 +76,27 @@ const rest = posts.slice(1);
 				padding: 0.2em 0.7em;
 				border-radius: 4px;
 				margin-bottom: 0.5em;
+			}
+			.carousel-dots {
+				display: flex;
+				justify-content: center;
+				gap: 0.5em;
+				margin-top: 1.2em;
+			}
+			.carousel-dots button {
+				width: 8px;
+				height: 8px;
+				border-radius: 50%;
+				border: none;
+				background: rgb(var(--gray-light));
+				padding: 0;
+				cursor: pointer;
+			}
+			.carousel-dots button.is-active {
+				background: var(--accent);
+				width: 22px;
+				border-radius: 4px;
+				transition: width 0.2s ease;
 			}
 			a.card-link {
 				text-decoration: none;
@@ -104,7 +131,7 @@ const rest = posts.slice(1);
 				color: var(--accent);
 			}
 			@media (max-width: 720px) {
-				.featured {
+				.slide.is-active {
 					grid-template-columns: 1fr;
 				}
 				.news-list {
@@ -117,25 +144,36 @@ const rest = posts.slice(1);
 		<Header />
 		<main>
 			<h2 class="section-title">今日焦點</h2>
-			{
-				featured && (
-					<a class="card-link" href={`/blog/${featured.id}/`}>
-						<div class="featured">
-							<img width={720} height={360} src={featured.data.heroImage} alt="" />
-							<div>
-								{featured.data.category && (
-									<span class="category-badge">{getCategoryName(featured.data.category)}</span>
-								)}
-								<p class="date">
-									<FormattedDate date={featured.data.pubDate} />
-								</p>
-								<h1 class="title">{featured.data.title}</h1>
-								<p class="description">{featured.data.description}</p>
+			<div class="carousel" id="hero-carousel">
+				{
+					featuredSlides.map((post, i) => (
+						<a class={`card-link slide${i === 0 ? ' is-active' : ''}`} href={`/blog/${post.id}/`} data-slide={i}>
+							<div class="slide-inner" style="display:contents">
+								<img width={720} height={360} src={post.data.heroImage} alt="" />
+								<div>
+									{post.data.category && (
+										<span class="category-badge">{getCategoryName(post.data.category)}</span>
+									)}
+									<p class="date">
+										<FormattedDate date={post.data.pubDate} />
+									</p>
+									<h1 class="title">{post.data.title}</h1>
+									<p class="description">{post.data.description}</p>
+								</div>
 							</div>
+						</a>
+					))
+				}
+				{
+					featuredSlides.length > 1 && (
+						<div class="carousel-dots">
+							{featuredSlides.map((_, i) => (
+								<button type="button" data-dot={i} class={i === 0 ? 'is-active' : ''} aria-label={`第 ${i + 1} 則`} />
+							))}
 						</div>
-					</a>
-				)
-			}
+					)
+				}
+			</div>
 
 			<h2 class="section-title">更多新聞</h2>
 			<ul class="news-list">
@@ -158,5 +196,45 @@ const rest = posts.slice(1);
 			</ul>
 		</main>
 		<Footer />
+		<script>
+			const carousel = document.getElementById('hero-carousel');
+			if (carousel) {
+				const slides = Array.from(carousel.querySelectorAll('.slide'));
+				const dots = Array.from(carousel.querySelectorAll('.carousel-dots button'));
+				let current = 0;
+				let timer;
+
+				function show(index) {
+					slides.forEach((s, i) => s.classList.toggle('is-active', i === index));
+					dots.forEach((d, i) => d.classList.toggle('is-active', i === index));
+					current = index;
+				}
+
+				function next() {
+					show((current + 1) % slides.length);
+				}
+
+				function start() {
+					if (slides.length > 1) {
+						timer = setInterval(next, 10000);
+					}
+				}
+
+				function stop() {
+					if (timer) clearInterval(timer);
+				}
+
+				dots.forEach(function (dot, i) {
+					dot.addEventListener('click', (e) => {
+						e.preventDefault();
+						stop();
+						show(i);
+						start();
+					});
+				});
+
+				start();
+			}
+		</script>
 	</body>
 </html>
