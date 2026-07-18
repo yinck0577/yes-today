@@ -1,0 +1,94 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_TITLE } from '../consts';
+---
+
+<!doctype html>
+<html lang="zh-Hant">
+	<head>
+		<BaseHead title={`隱私權政策 - ${SITE_TITLE}`} description="Yes Today 隱私權政策，說明本站如何蒐集、使用與保護您的個人資料。" />
+		<style>
+			main {
+				width: 720px;
+				max-width: calc(100% - 2em);
+				margin: 0 auto;
+				padding: 2em 1em 4em 1em;
+			}
+			h1 {
+				border-bottom: 2px solid var(--accent);
+				padding-bottom: 0.5em;
+			}
+			h2 {
+				margin-top: 1.5em;
+			}
+			p, li {
+				line-height: 1.8;
+			}
+			.updated {
+				color: rgb(var(--gray));
+				font-size: 0.9rem;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>隱私權政策</h1>
+			<p class="updated">最後更新日期：2026 年 7 月 18 日</p>
+
+			<p>
+				Yes Today（以下稱「本網站」）重視您的隱私權。本隱私權政策說明本網站如何蒐集、使用、揭露及保護您在使用本網站時所提供或產生的資訊。使用本網站即表示您同意本政策所述之內容。
+			</p>
+
+			<h2>我們蒐集哪些資訊</h2>
+			<p>本網站可能蒐集以下類型的資訊：</p>
+			<ul>
+				<li><strong>瀏覽資料</strong>：例如您造訪的頁面、瀏覽時間、使用的瀏覽器與裝置類型，通常透過分析工具（例如 Google Analytics）以匿名或聚合方式蒐集。</li>
+				<li><strong>Cookie 與類似技術</strong>：本網站及第三方服務（如廣告或分析供應商）可能使用 Cookie，以記住您的偏好、分析網站流量，或提供個人化廣告。</li>
+				<li><strong>您主動提供的資訊</strong>：例如您透過聯絡管道與我們聯繫時所留下的姓名、Email 或訊息內容。</li>
+			</ul>
+
+			<h2>第三方服務與廣告</h2>
+			<p>
+				本網站可能使用第三方服務（例如 Google Analytics 進行流量分析、Google AdSense 或其他廣告聯播網投放廣告）。這些第三方可能使用 Cookie 或類似技術，蒐集您造訪本網站及其他網站的資訊，以提供符合您興趣的廣告內容。
+			</p>
+			<p>
+				您可以透過瀏覽器設定管理或封鎖 Cookie，也可以前往
+				<a href="https://adssettings.google.com/" target="_blank" rel="noopener">Google 廣告設定</a>
+				調整個人化廣告偏好，或參考
+				<a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">Google 合作夥伴網站技術說明</a>。
+			</p>
+
+			<h2>我們如何使用您的資訊</h2>
+			<ul>
+				<li>維運、分析與改善本網站內容與使用體驗。</li>
+				<li>了解讀者對哪些主題有興趣，作為未來選題參考。</li>
+				<li>回覆您透過聯絡管道提出的問題或意見。</li>
+			</ul>
+			<p>本網站不會將您的個人資料出售給第三方。</p>
+
+			<h2>資料保留與安全</h2>
+			<p>
+				我們會採取合理的技術與管理措施保護您的資訊，但請理解沒有任何網路傳輸或儲存方式能保證百分之百安全。
+			</p>
+
+			<h2>兒童隱私</h2>
+			<p>
+				本網站內容不特別鎖定 13 歲以下兒童，亦不會刻意蒐集兒童的個人資料。若您認為我們可能無意間蒐集了兒童的資料，請與我們聯繫以便刪除。
+			</p>
+
+			<h2>政策異動</h2>
+			<p>
+				本隱私權政策可能因應法規或網站服務調整而更新，更新後將公布於本頁面，並更新上方「最後更新日期」。建議您不定期回來查看最新版本。
+			</p>
+
+			<h2>聯絡我們</h2>
+			<p>
+				若您對本隱私權政策有任何疑問，歡迎透過網站的聯絡方式與我們聯繫（聯絡頁面建置中）。
+			</p>
+		</main>
+		<Footer />
+	</body>
+</html>
