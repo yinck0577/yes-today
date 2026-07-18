@@ -34,6 +34,8 @@ const sameCategoryPool = allPosts.filter(
 const randomPicks = shuffle(sameCategoryPool).slice(0, 2);
 
 const related = [latestPick, ...randomPicks].filter(Boolean) as typeof allPosts;
+
+const counterKey = `yes-today-post-${currentId}`;
 ---
 
 <html lang="en">
@@ -76,6 +78,44 @@ const related = [latestPick, ...randomPicks].filter(Boolean) as typeof allPosts;
 			}
 			.last-updated-on {
 				font-style: italic;
+			}
+			.post-meta {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				flex-wrap: wrap;
+				gap: 1em;
+				margin: 0.5em 0 1.5em 0;
+				padding-bottom: 1em;
+				border-bottom: 1px solid rgb(var(--gray-light));
+			}
+			.view-count {
+				color: rgb(var(--gray));
+				font-size: 0.9rem;
+			}
+			.share-buttons {
+				display: flex;
+				gap: 0.6em;
+			}
+			.share-btn {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.4em;
+				padding: 0.4em 0.9em;
+				border-radius: 20px;
+				font-size: 0.85rem;
+				text-decoration: none;
+				color: #fff;
+				font-weight: 600;
+			}
+			.share-btn.fb {
+				background: #1877f2;
+			}
+			.share-btn.line {
+				background: #06c755;
+			}
+			.share-btn:hover {
+				opacity: 0.85;
 			}
 			.related {
 				width: 720px;
@@ -160,6 +200,13 @@ const related = [latestPick, ...randomPicks].filter(Boolean) as typeof allPosts;
 						<h1>{title}</h1>
 						<hr />
 					</div>
+					<div class="post-meta">
+						<span class="view-count" id="view-count">瀏覽數讀取中...</span>
+						<div class="share-buttons">
+							<a id="share-fb" class="share-btn fb" href="#" target="_blank" rel="noopener">分享到 Facebook</a>
+							<a id="share-line" class="share-btn line" href="#" target="_blank" rel="noopener">分享到 LINE</a>
+						</div>
+					</div>
 					<slot />
 				</div>
 			</article>
@@ -190,5 +237,22 @@ const related = [latestPick, ...randomPicks].filter(Boolean) as typeof allPosts;
 			}
 		</main>
 		<Footer />
+		<script define:vars={{ counterKey }}>
+			const url = window.location.href;
+			const fb = document.getElementById('share-fb');
+			const line = document.getElementById('share-line');
+			if (fb) fb.href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url);
+			if (line) line.href = 'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(url);
+
+			const viewEl = document.getElementById('view-count');
+			fetch('https://countapi.mileshilliard.com/api/v1/hit/' + encodeURIComponent(counterKey))
+				.then((r) => r.json())
+				.then((data) => {
+					if (viewEl) viewEl.textContent = '👁 ' + data.value + ' 次瀏覽';
+				})
+				.catch(() => {
+					if (viewEl) viewEl.textContent = '';
+				});
+		</script>
 	</body>
 </html>
