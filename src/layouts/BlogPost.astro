@@ -101,6 +101,10 @@ const articleLD = {
 			}
 			.last-updated-on {
 				font-style: italic;
+				font-size: 0.85em;
+			}
+			.byline {
+				display: block;
 			}
 			.post-meta {
 				display: flex;
@@ -211,14 +215,10 @@ const articleLD = {
 				<div class="prose">
 					<div class="title">
 						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										最後更新：<FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
+							<span class="byline">Yes Today 編輯部｜發布於 <FormattedDate date={pubDate} /></span>
+							<div class="last-updated-on">
+								最後更新：<FormattedDate date={updatedDate ?? pubDate} />
+							</div>
 						</div>
 						<h1>{title}</h1>
 						<hr />
