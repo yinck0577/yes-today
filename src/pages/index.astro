@@ -12,6 +12,13 @@ const posts = (await getCollection('blog')).sort(
 
 const featuredSlides = posts.slice(0, 5);
 const rest = posts.slice(1);
+
+const popularCandidates = posts.slice(0, 12).map((post) => ({
+	id: post.id,
+	title: post.data.title,
+	heroImage: post.data.heroImage ?? '',
+	category: post.data.category ?? '',
+}));
 ---
 
 <!doctype html>
@@ -46,61 +53,71 @@ const rest = posts.slice(1);
 				font-size: 0.95rem;
 			}
 			.featured-section {
-				background: #FFF8E8;
-				border-radius: 16px;
-				padding: 40px;
-				box-sizing: border-box;
 				margin-top: 1.5em;
 			}
-			.more-news-section {
-				background: #fff;
-				margin-top: 64px;
+			.two-col-section {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 48px;
+				margin-top: 56px;
 			}
 			@media (max-width: 720px) {
-				.featured-section {
-					padding: 20px;
+				.two-col-section {
+					grid-template-columns: 1fr;
+					gap: 32px;
 				}
-				.more-news-section {
+				.two-col-section {
 					margin-top: 40px;
 				}
 			}
-			.carousel {
+			.carousel-outer {
 				position: relative;
+				background: var(--accent);
+				border-radius: 20px;
+				padding: 28px;
+				box-sizing: border-box;
+			}
+			@media (max-width: 720px) {
+				.carousel-outer {
+					padding: 16px;
+				}
 			}
 			.carousel a.slide {
 				display: none;
-				grid-template-columns: 1.2fr 1fr;
-				gap: 2em;
-				align-items: center;
-				height: 360px;
+				grid-template-columns: 1fr 1fr;
+				gap: 24px;
+				align-items: stretch;
 			}
 			.carousel a.slide.is-active {
 				display: grid;
 			}
+			.slide-text {
+				background: #fff;
+				border-radius: 14px;
+				padding: 28px;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				box-sizing: border-box;
+			}
 			.slide img {
 				width: 100%;
-				height: 360px;
+				height: 100%;
+				min-height: 320px;
 				object-fit: cover;
-				border-radius: 12px;
+				border-radius: 14px;
 				display: block;
 			}
 			.slide .title {
-				margin: 0 0 0.4em 0;
-				font-size: 1.9rem;
-				line-height: 1.45;
+				margin: 0 0 0.5em 0;
+				font-size: 1.7rem;
+				line-height: 1.4;
 				color: rgb(var(--black));
-				display: -webkit-box;
-				-webkit-line-clamp: 3;
-				-webkit-box-orient: vertical;
-				overflow: hidden;
 			}
 			.slide .description {
 				color: rgb(var(--gray-dark));
-				line-height: 1.6;
-				display: -webkit-box;
-				-webkit-line-clamp: 3;
-				-webkit-box-orient: vertical;
-				overflow: hidden;
+				line-height: 1.7;
+				margin: 0;
 			}
 			.date {
 				margin: 0.3em 0 0.6em 0;
@@ -116,19 +133,20 @@ const rest = posts.slice(1);
 				padding: 0.2em 0.7em;
 				border-radius: 4px;
 				margin-bottom: 0.5em;
+				width: fit-content;
 			}
 			.carousel-arrow {
 				position: absolute;
-				top: 40%;
+				top: 50%;
 				transform: translateY(-50%);
 				z-index: 5;
-				width: 36px;
-				height: 36px;
+				width: 40px;
+				height: 40px;
 				border-radius: 50%;
-				border: 1px solid rgb(var(--gray-light));
-				background: rgba(255, 255, 255, 0.9);
+				border: none;
+				background: #fff;
 				color: rgb(var(--gray-dark));
-				font-size: 1.3rem;
+				font-size: 1.4rem;
 				line-height: 1;
 				cursor: pointer;
 				display: flex;
@@ -138,13 +156,12 @@ const rest = posts.slice(1);
 			}
 			.carousel-arrow:hover {
 				color: var(--accent);
-				border-color: var(--accent);
 			}
 			.carousel-arrow.prev {
-				left: -18px;
+				left: -20px;
 			}
 			.carousel-arrow.next {
-				right: -18px;
+				right: -20px;
 			}
 			.carousel-dots {
 				display: flex;
@@ -157,12 +174,12 @@ const rest = posts.slice(1);
 				height: 8px;
 				border-radius: 50%;
 				border: none;
-				background: rgb(var(--gray-light));
+				background: rgba(255, 255, 255, 0.5);
 				padding: 0;
 				cursor: pointer;
 			}
 			.carousel-dots button.is-active {
-				background: var(--accent);
+				background: #fff;
 				width: 22px;
 				border-radius: 4px;
 				transition: width 0.2s ease;
@@ -171,54 +188,72 @@ const rest = posts.slice(1);
 				text-decoration: none;
 				display: block;
 			}
-			.news-list {
+			.simple-list {
 				list-style: none;
 				margin: 0;
 				padding: 0;
-				display: grid;
-				grid-template-columns: repeat(3, 1fr);
-				gap: 1.5em;
 			}
-			.news-list li {
+			.simple-list li {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				padding: 14px 0;
 				border-bottom: 1px solid rgb(var(--gray-light));
-				padding-bottom: 1em;
 			}
-			.news-list a.card-link {
-				border-radius: 10px;
-				transition: transform 180ms ease, box-shadow 180ms ease;
+			.simple-list li:first-child {
+				padding-top: 0;
 			}
-			@media (prefers-reduced-motion: no-preference) {
-				.news-list a.card-link:hover {
-					transform: translateY(-2px);
-					box-shadow: 0 4px 12px rgba(var(--gray), 15%);
-				}
+			.simple-list .rank {
+				font-weight: 700;
+				color: var(--accent);
+				font-size: 1.2rem;
+				width: 22px;
+				flex-shrink: 0;
+				text-align: center;
 			}
-			.news-list img {
-				width: 100%;
-				border-radius: 10px;
-				margin-bottom: 0.6em;
+			.simple-list img {
+				width: 84px;
+				height: 60px;
+				object-fit: cover;
+				border-radius: 8px;
+				flex-shrink: 0;
 				display: block;
 			}
-			.news-list .title {
+			.simple-list .meta {
+				flex: 1;
+				min-width: 0;
+			}
+			.simple-list .s-title {
 				margin: 0;
-				font-size: 1.05rem;
+				font-size: 0.95rem;
 				line-height: 1.45;
+				font-weight: 600;
 				color: rgb(var(--black));
 			}
-			a:hover .title,
-			a:hover .date {
+			.simple-list .s-title a {
+				color: inherit;
+				text-decoration: none;
+			}
+			.simple-list .s-title a:hover {
 				color: var(--accent);
+			}
+			.simple-list .s-sub {
+				margin: 0.3em 0 0 0;
+				font-size: 0.78rem;
+				color: rgb(var(--gray));
+			}
+			.simple-list .loading {
+				color: rgb(var(--gray));
+				font-size: 0.9rem;
+				padding: 0.5em 0;
 			}
 			@media (max-width: 720px) {
 				.carousel a.slide.is-active {
 					grid-template-columns: 1fr;
-					height: auto;
 				}
 				.slide img {
+					min-height: 200px;
 					height: 200px;
-				}
-				.news-list {
-					grid-template-columns: 1fr;
 				}
 				.carousel-arrow.prev {
 					left: 0;
@@ -236,18 +271,18 @@ const rest = posts.slice(1);
 			<div class="featured-section">
 				<h2 class="section-title">今日焦點</h2>
 				<p class="section-sub">今天最值得理解的一件事</p>
-				<div class="carousel" id="hero-carousel">
-					{
-						featuredSlides.length > 1 && (
-							<button type="button" class="carousel-arrow prev" aria-label="上一則">‹</button>
-						)
-					}
-					{
-						featuredSlides.map((post, i) => (
-							<a class={`card-link slide${i === 0 ? ' is-active' : ''}`} href={`/blog/${post.id}/`} data-slide={i}>
-								<div class="slide-inner" style="display:contents">
+				<div class="carousel-outer">
+					<div class="carousel" id="hero-carousel">
+						{
+							featuredSlides.length > 1 && (
+								<button type="button" class="carousel-arrow prev" aria-label="上一則">‹</button>
+							)
+						}
+						{
+							featuredSlides.map((post, i) => (
+								<a class={`card-link slide${i === 0 ? ' is-active' : ''}`} href={`/blog/${post.id}/`} data-slide={i}>
 									<img width={720} height={360} src={post.data.heroImage} alt={post.data.title} />
-									<div>
+									<div class="slide-text">
 										{post.data.category && (
 											<span class="category-badge">{getCategoryName(post.data.category)}</span>
 										)}
@@ -257,15 +292,15 @@ const rest = posts.slice(1);
 										<h2 class="title">{post.data.title}</h2>
 										<p class="description">{post.data.description}</p>
 									</div>
-								</div>
-							</a>
-						))
-					}
-					{
-						featuredSlides.length > 1 && (
-							<button type="button" class="carousel-arrow next" aria-label="下一則">›</button>
-						)
-					}
+								</a>
+							))
+						}
+						{
+							featuredSlides.length > 1 && (
+								<button type="button" class="carousel-arrow next" aria-label="下一則">›</button>
+							)
+						}
+					</div>
 					{
 						featuredSlides.length > 1 && (
 							<div class="carousel-dots">
@@ -278,35 +313,95 @@ const rest = posts.slice(1);
 				</div>
 			</div>
 
-			<div class="more-news-section">
-				<h2 class="section-title">更多新聞</h2>
-				<p class="section-sub">掌握近期與生活有關的重要消息</p>
-				<ul class="news-list">
-					{
-						rest.map((post) => (
-							<li>
-								<a class="card-link" href={`/blog/${post.id}/`}>
-									<img width={360} height={200} src={post.data.heroImage} alt={post.data.title} loading="lazy" />
-									{post.data.category && (
-										<span class="category-badge">{getCategoryName(post.data.category)}</span>
-									)}
-									<p class="date">
-										<FormattedDate date={post.data.pubDate} />
-									</p>
-									<h3 class="title">{post.data.title}</h3>
-								</a>
-							</li>
-						))
-					}
-				</ul>
+			<div class="two-col-section">
+				<div>
+					<h2 class="section-title">最新文章</h2>
+					<p class="section-sub">掌握近期與生活有關的重要消息</p>
+					<ul class="simple-list">
+						{
+							rest.slice(0, 6).map((post) => (
+								<li>
+									<img src={post.data.heroImage} alt={post.data.title} loading="lazy" />
+									<div class="meta">
+										<p class="s-title">
+											<a href={`/blog/${post.id}/`}>{post.data.title}</a>
+										</p>
+										<p class="s-sub">
+											{post.data.category && getCategoryName(post.data.category) + '｜'}
+											<FormattedDate date={post.data.pubDate} />
+										</p>
+									</div>
+								</li>
+							))
+						}
+					</ul>
+				</div>
+				<div>
+					<h2 class="section-title">熱門文章</h2>
+					<p class="section-sub">依真實瀏覽數排序，大家都在看</p>
+					<ul class="simple-list" id="popular-list">
+						<li class="loading">讀取熱門文章中...</li>
+					</ul>
+				</div>
 			</div>
 		</main>
 		<Footer />
+		<script define:vars={{ popularCandidates }}>
+			(function () {
+				const list = document.getElementById('popular-list');
+				if (!list || !popularCandidates || !popularCandidates.length) return;
+
+				const fetches = popularCandidates.map(function (p) {
+					const key = 'yes-today-post-' + p.id;
+					return fetch('https://countapi.mileshilliard.com/api/v1/get/' + encodeURIComponent(key))
+						.then(function (r) {
+							return r.ok ? r.json() : { value: 0 };
+						})
+						.then(function (data) {
+							return { post: p, views: data.value || 0 };
+						})
+						.catch(function () {
+							return { post: p, views: 0 };
+						});
+				});
+
+				Promise.all(fetches).then(function (results) {
+					results.sort(function (a, b) {
+						return b.views - a.views;
+					});
+					const top = results.slice(0, 6);
+					if (!top.length || top.every(function (r) { return r.views === 0; })) {
+						list.innerHTML = '<li class="loading">目前還沒有足夠的瀏覽資料</li>';
+						return;
+					}
+					list.innerHTML = top
+						.map(function (r, i) {
+							const img = r.post.heroImage
+								? '<img src="' + r.post.heroImage + '" alt="" loading="lazy" />'
+								: '';
+							return (
+								'<li><span class="rank">' +
+								(i + 1) +
+								'</span>' +
+								img +
+								'<div class="meta"><p class="s-title"><a href="/blog/' +
+								r.post.id +
+								'/">' +
+								r.post.title +
+								'</a></p><p class="s-sub">' +
+								r.views +
+								' 次瀏覽</p></div></li>'
+							);
+						})
+						.join('');
+				});
+			})();
+		</script>
 		<script>
 			const carousel = document.getElementById('hero-carousel');
 			if (carousel) {
 				const slides = Array.from(carousel.querySelectorAll('.slide'));
-				const dots = Array.from(carousel.querySelectorAll('.carousel-dots button'));
+				const dots = Array.from(document.querySelectorAll('.carousel-dots button'));
 				const prevBtn = carousel.querySelector('.carousel-arrow.prev');
 				const nextBtn = carousel.querySelector('.carousel-arrow.next');
 				let current = 0;
