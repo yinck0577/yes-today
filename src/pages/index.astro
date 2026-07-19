@@ -18,6 +18,7 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 	title: post.data.title,
 	heroImage: post.data.heroImage ?? '',
 	category: post.data.category ?? '',
+	categoryName: post.data.category ? getCategoryName(post.data.category) : '',
 }));
 ---
 
@@ -72,24 +73,38 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 			}
 			.carousel-outer {
 				position: relative;
-				background: var(--accent);
+				background: #A0C8FA;
 				border-radius: 20px;
-				padding: 28px;
+				padding: 28px 56px;
 				box-sizing: border-box;
 			}
 			@media (max-width: 720px) {
 				.carousel-outer {
-					padding: 16px;
+					padding: 16px 40px;
 				}
 			}
+			.carousel {
+				display: grid;
+			}
 			.carousel a.slide {
-				display: none;
+				grid-area: 1 / 1;
+				display: grid;
 				grid-template-columns: 1fr 1fr;
 				gap: 24px;
 				align-items: stretch;
+				visibility: hidden;
+				opacity: 0;
+				pointer-events: none;
+			}
+			@media (prefers-reduced-motion: no-preference) {
+				.carousel a.slide {
+					transition: opacity 0.25s ease;
+				}
 			}
 			.carousel a.slide.is-active {
-				display: grid;
+				visibility: visible;
+				opacity: 1;
+				pointer-events: auto;
 			}
 			.slide-text {
 				background: #fff;
@@ -158,10 +173,10 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 				color: var(--accent);
 			}
 			.carousel-arrow.prev {
-				left: -20px;
+				left: 12px;
 			}
 			.carousel-arrow.next {
-				right: -20px;
+				right: 12px;
 			}
 			.carousel-dots {
 				display: flex;
@@ -242,13 +257,23 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 				font-size: 0.78rem;
 				color: rgb(var(--gray));
 			}
+			.mini-badge {
+				display: inline-block;
+				background: var(--accent);
+				color: #fff;
+				font-size: 0.7rem;
+				font-weight: 700;
+				padding: 0.15em 0.6em;
+				border-radius: 4px;
+				margin-bottom: 0.35em;
+			}
 			.simple-list .loading {
 				color: rgb(var(--gray));
 				font-size: 0.9rem;
 				padding: 0.5em 0;
 			}
 			@media (max-width: 720px) {
-				.carousel a.slide.is-active {
+				.carousel a.slide {
 					grid-template-columns: 1fr;
 				}
 				.slide img {
@@ -256,10 +281,10 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 					height: 200px;
 				}
 				.carousel-arrow.prev {
-					left: 0;
+					left: 6px;
 				}
 				.carousel-arrow.next {
-					right: 0;
+					right: 6px;
 				}
 			}
 		</style>
@@ -316,7 +341,6 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 			<div class="two-col-section">
 				<div>
 					<h2 class="section-title">最新文章</h2>
-					<p class="section-sub">掌握近期與生活有關的重要消息</p>
 					<ul class="simple-list">
 						{
 							rest.slice(0, 6).map((post) => (
@@ -338,7 +362,6 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 				</div>
 				<div>
 					<h2 class="section-title">熱門文章</h2>
-					<p class="section-sub">依真實瀏覽數排序，大家都在看</p>
 					<ul class="simple-list" id="popular-list">
 						<li class="loading">讀取熱門文章中...</li>
 					</ul>
@@ -376,21 +399,20 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 					}
 					list.innerHTML = top
 						.map(function (r, i) {
-							const img = r.post.heroImage
-								? '<img src="' + r.post.heroImage + '" alt="" loading="lazy" />'
+							const badge = r.post.categoryName
+								? '<span class="mini-badge">' + r.post.categoryName + '</span>'
 								: '';
 							return (
 								'<li><span class="rank">' +
 								(i + 1) +
 								'</span>' +
-								img +
-								'<div class="meta"><p class="s-title"><a href="/blog/' +
+								'<div class="meta">' +
+								badge +
+								'<p class="s-title"><a href="/blog/' +
 								r.post.id +
 								'/">' +
 								r.post.title +
-								'</a></p><p class="s-sub">' +
-								r.views +
-								' 次瀏覽</p></div></li>'
+								'</a></p></div></li>'
 							);
 						})
 						.join('');
