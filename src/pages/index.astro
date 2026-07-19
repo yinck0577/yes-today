@@ -399,15 +399,11 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 					}
 					list.innerHTML = top
 						.map(function (r, i) {
-							const badge = r.post.categoryName
-								? '<span class="mini-badge">' + r.post.categoryName + '</span>'
-								: '';
-							return (
+														return (
 								'<li><span class="rank">' +
 								(i + 1) +
 								'</span>' +
 								'<div class="meta">' +
-								badge +
 								'<p class="s-title"><a href="/blog/' +
 								r.post.id +
 								'/">' +
