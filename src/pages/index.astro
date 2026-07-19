@@ -267,6 +267,26 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 				border-radius: 4px;
 				margin-bottom: 0.35em;
 			}
+			#popular-list li {
+				align-items: flex-start;
+				padding: 22px 0;
+				gap: 16px;
+			}
+			#popular-list li:first-child {
+				padding-top: 0;
+			}
+			#popular-list .rank {
+				font-size: 1.5rem;
+				font-weight: 700;
+				color: rgb(var(--black));
+				width: 30px;
+				text-align: left;
+			}
+			#popular-list .s-title {
+				font-size: 1.05rem;
+				line-height: 1.6;
+				font-weight: 600;
+			}
 			.simple-list .loading {
 				color: rgb(var(--gray));
 				font-size: 0.9rem;
@@ -399,11 +419,15 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 					}
 					list.innerHTML = top
 						.map(function (r, i) {
-														return (
+							const badge = r.post.categoryName
+								? '<span class="mini-badge">' + r.post.categoryName + '</span>'
+								: '';
+							return (
 								'<li><span class="rank">' +
 								(i + 1) +
 								'</span>' +
 								'<div class="meta">' +
+								badge +
 								'<p class="s-title"><a href="/blog/' +
 								r.post.id +
 								'/">' +
