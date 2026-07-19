@@ -15,7 +15,7 @@ const rest = posts.slice(1);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="zh-Hant">
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 		<style>
@@ -23,6 +23,12 @@ const rest = posts.slice(1);
 				width: 960px;
 				max-width: calc(100% - 2em);
 				margin: 0 auto;
+			}
+			.site-tagline {
+				font-size: 0.95rem;
+				font-weight: 600;
+				color: rgb(var(--gray-dark));
+				margin: 1em 0 0 0;
 			}
 			.section-title {
 				font-size: 0.9rem;
@@ -193,6 +199,7 @@ const rest = posts.slice(1);
 	<body>
 		<Header />
 		<main>
+			<h1 class="site-tagline">Yes Today｜把今天的新聞變成能用的資訊</h1>
 			<h2 class="section-title">今日焦點</h2>
 			<div class="carousel" id="hero-carousel">
 				{
@@ -204,7 +211,7 @@ const rest = posts.slice(1);
 					featuredSlides.map((post, i) => (
 						<a class={`card-link slide${i === 0 ? ' is-active' : ''}`} href={`/blog/${post.id}/`} data-slide={i}>
 							<div class="slide-inner" style="display:contents">
-								<img width={720} height={360} src={post.data.heroImage} alt="" />
+								<img width={720} height={360} src={post.data.heroImage} alt={post.data.title} />
 								<div>
 									{post.data.category && (
 										<span class="category-badge">{getCategoryName(post.data.category)}</span>
@@ -212,7 +219,7 @@ const rest = posts.slice(1);
 									<p class="date">
 										<FormattedDate date={post.data.pubDate} />
 									</p>
-									<h1 class="title">{post.data.title}</h1>
+									<h2 class="title">{post.data.title}</h2>
 									<p class="description">{post.data.description}</p>
 								</div>
 							</div>
@@ -241,14 +248,14 @@ const rest = posts.slice(1);
 					rest.map((post) => (
 						<li>
 							<a class="card-link" href={`/blog/${post.id}/`}>
-								<img width={360} height={200} src={post.data.heroImage} alt="" />
+								<img width={360} height={200} src={post.data.heroImage} alt={post.data.title} loading="lazy" />
 								{post.data.category && (
 									<span class="category-badge">{getCategoryName(post.data.category)}</span>
 								)}
 								<p class="date">
 									<FormattedDate date={post.data.pubDate} />
 								</p>
-								<h4 class="title">{post.data.title}</h4>
+								<h3 class="title">{post.data.title}</h3>
 							</a>
 						</li>
 					))
