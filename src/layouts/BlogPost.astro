@@ -5,7 +5,7 @@ import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
-import { getCategoryName } from '../consts';
+import { getCategoryName, SITE_TITLE } from '../consts';
 
 type Props = CollectionEntry<'blog'>['data'] & { currentId?: string };
 
@@ -36,11 +36,34 @@ const randomPicks = shuffle(sameCategoryPool).slice(0, 2);
 const related = [latestPick, ...randomPicks].filter(Boolean) as typeof allPosts;
 
 const counterKey = `yes-today-post-${currentId}`;
+
+const absoluteImageURL = heroImage ? new URL(heroImage, Astro.url) : undefined;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+const articleLD = {
+	'@context': 'https://schema.org',
+	'@type': 'Article',
+	headline: title,
+	description,
+	image: absoluteImageURL ? [absoluteImageURL.toString()] : undefined,
+	datePublished: pubDate.toISOString(),
+	dateModified: (updatedDate ?? pubDate).toISOString(),
+	author: [{ '@type': 'Organization', name: SITE_TITLE }],
+	publisher: {
+		'@type': 'Organization',
+		name: SITE_TITLE,
+		logo: { '@type': 'ImageObject', url: new URL('/yestodaylogo.png', Astro.url).toString() },
+	},
+	mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalURL.toString() },
+	articleSection: category ? getCategoryName(category) : undefined,
+	inLanguage: 'zh-Hant',
+};
 ---
 
-<html lang="en">
+<html lang="zh-Hant">
 	<head>
-		<BaseHead title={title} description={description} />
+		<BaseHead title={title} description={description} image={heroImage} type="article" />
+		<script type="application/ld+json" set:html={JSON.stringify(articleLD)} />
 		<style>
 			main {
 				width: calc(100% - 2em);
@@ -183,7 +206,7 @@ const counterKey = `yes-today-post-${currentId}`;
 		<main>
 			<article>
 				<div class="hero-image">
-					{heroImage && <img width={1020} height={510} src={heroImage} alt="" />}
+					{heroImage && <img width={1020} height={510} src={heroImage} alt={title} />}
 				</div>
 				<div class="prose">
 					<div class="title">
@@ -192,7 +215,7 @@ const counterKey = `yes-today-post-${currentId}`;
 							{
 								updatedDate && (
 									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
+										最後更新：<FormattedDate date={updatedDate} />
 									</div>
 								)
 							}
@@ -219,12 +242,12 @@ const counterKey = `yes-today-post-${currentId}`;
 								<li>
 									<a href={`/blog/${post.id}/`}>
 										{post.data.heroImage && (
-											<img width={360} height={200} src={post.data.heroImage} alt="" />
+											<img width={360} height={200} src={post.data.heroImage} alt={post.data.title} loading="lazy" />
 										)}
 										{post.data.category && (
 											<span class="related-badge">{getCategoryName(post.data.category)}</span>
 										)}
-										<h4 class="related-title">{post.data.title}</h4>
+										<h3 class="related-title">{post.data.title}</h3>
 										<p class="related-date">
 											<FormattedDate date={post.data.pubDate} />
 										</p>
