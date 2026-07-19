@@ -267,22 +267,22 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 				border-radius: 4px;
 				margin-bottom: 0.35em;
 			}
-			#popular-list li {
+			:global(#popular-list li) {
 				align-items: flex-start;
 				padding: 22px 0;
 				gap: 16px;
 			}
-			#popular-list li:first-child {
+			:global(#popular-list li:first-child) {
 				padding-top: 0;
 			}
-			#popular-list .rank {
+			:global(#popular-list .rank) {
 				font-size: 1.5rem;
 				font-weight: 700;
 				color: rgb(var(--black));
 				width: 30px;
 				text-align: left;
 			}
-			#popular-list .s-title {
+			:global(#popular-list .s-title) {
 				font-size: 1.05rem;
 				line-height: 1.6;
 				font-weight: 600;
