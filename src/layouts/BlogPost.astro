@@ -65,6 +65,23 @@ const articleLD = {
 		<BaseHead title={title} description={description} image={heroImage} type="article" />
 		<script type="application/ld+json" set:html={JSON.stringify(articleLD)} />
 		<style>
+			#reading-progress-bar {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 3px;
+				background: var(--accent);
+				transform: scaleX(0);
+				transform-origin: left center;
+				z-index: 60;
+				pointer-events: none;
+			}
+			@media (max-width: 720px) {
+				#reading-progress-bar {
+					height: 2px;
+				}
+			}
 			main {
 				width: calc(100% - 2em);
 				max-width: 100%;
@@ -144,6 +161,46 @@ const articleLD = {
 			.share-btn:hover {
 				opacity: 0.85;
 			}
+			.share-sidebar {
+				position: fixed;
+				left: 24px;
+				top: 45%;
+				transform: translateY(-50%);
+				display: flex;
+				flex-direction: column;
+				gap: 0.8em;
+				z-index: 30;
+			}
+			.share-icon {
+				width: 42px;
+				height: 42px;
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: #fff;
+				text-decoration: none;
+				box-shadow: var(--box-shadow);
+			}
+			.share-icon.fb {
+				background: #1877f2;
+			}
+			.share-icon.line {
+				background: #06c755;
+			}
+			.share-icon:hover {
+				opacity: 0.85;
+			}
+			@media (min-width: 1150px) {
+				.post-meta .share-buttons {
+					display: none;
+				}
+			}
+			@media (max-width: 1149px) {
+				.share-sidebar {
+					display: none;
+				}
+			}
 			.related {
 				width: 720px;
 				max-width: calc(100% - 2em);
@@ -206,7 +263,26 @@ const articleLD = {
 	</head>
 
 	<body>
+		<div id="reading-progress-bar"></div>
 		<Header />
+		<div class="share-sidebar" aria-label="分享這篇文章">
+			<a id="share-fb-side" class="share-icon fb" href="#" target="_blank" rel="noopener" aria-label="分享到 Facebook">
+				<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"
+					><path
+						fill="currentColor"
+						d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.79 8.44-4.94 8.44-9.94z"
+					></path></svg
+				>
+			</a>
+			<a id="share-line-side" class="share-icon line" href="#" target="_blank" rel="noopener" aria-label="分享到 LINE">
+				<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"
+					><path
+						fill="currentColor"
+						d="M12 2C6.48 2 2 5.69 2 10.24c0 4.08 3.54 7.5 8.32 8.15.32.07.76.21.87.49.1.25.06.65.03.9l-.14.85c-.04.25-.19.98.86.53s5.65-3.33 7.71-5.7C21.09 13.5 22 11.96 22 10.24 22 5.69 17.52 2 12 2zm-3.5 11h-1.8a.4.4 0 0 1-.4-.4V8.4a.4.4 0 0 1 .4-.4h.8a.4.4 0 0 1 .4.4v3.4h1.6a.4.4 0 0 1 .4.4v.8a.4.4 0 0 1-.4.4zm2.6-4.6a.4.4 0 0 1-.4.4h-.8a.4.4 0 0 1-.4-.4V8.4a.4.4 0 0 1 .4-.4h.8a.4.4 0 0 1 .4.4zm5.5 4.2a.4.4 0 0 1-.4.4h-.8a.4.4 0 0 1-.32-.16l-1.68-2.27v2.03a.4.4 0 0 1-.4.4h-.8a.4.4 0 0 1-.4-.4V8.4a.4.4 0 0 1 .4-.4h.8c.13 0 .25.06.32.16l1.68 2.27V8.4a.4.4 0 0 1 .4-.4h.8a.4.4 0 0 1 .4.4z"
+					></path></svg
+				>
+			</a>
+		</div>
 		<main>
 			<article>
 				<div class="hero-image">
@@ -262,10 +338,16 @@ const articleLD = {
 		<Footer />
 		<script define:vars={{ counterKey }}>
 			const url = window.location.href;
+			const fbShareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url);
+			const lineShareUrl = 'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(url);
 			const fb = document.getElementById('share-fb');
 			const line = document.getElementById('share-line');
-			if (fb) fb.href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url);
-			if (line) line.href = 'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(url);
+			const fbSide = document.getElementById('share-fb-side');
+			const lineSide = document.getElementById('share-line-side');
+			if (fb) fb.href = fbShareUrl;
+			if (line) line.href = lineShareUrl;
+			if (fbSide) fbSide.href = fbShareUrl;
+			if (lineSide) lineSide.href = lineShareUrl;
 
 			const viewEl = document.getElementById('view-count');
 			fetch('https://countapi.mileshilliard.com/api/v1/hit/' + encodeURIComponent(counterKey))
@@ -276,6 +358,34 @@ const articleLD = {
 				.catch(() => {
 					if (viewEl) viewEl.textContent = '';
 				});
+		</script>
+		<script>
+			(function () {
+				const bar = document.getElementById('reading-progress-bar');
+				const article = document.querySelector('article');
+				if (!bar || !article) return;
+				let ticking = false;
+				function update() {
+					const rect = article.getBoundingClientRect();
+					const total = article.offsetHeight - window.innerHeight;
+					let progress = 1;
+					if (total > 0) {
+						const scrolled = -rect.top;
+						progress = Math.min(1, Math.max(0, scrolled / total));
+					}
+					bar.style.transform = 'scaleX(' + progress + ')';
+					ticking = false;
+				}
+				function onScroll() {
+					if (!ticking) {
+						window.requestAnimationFrame(update);
+						ticking = true;
+					}
+				}
+				window.addEventListener('scroll', onScroll, { passive: true });
+				window.addEventListener('resize', onScroll, { passive: true });
+				update();
+			})();
 		</script>
 	</body>
 </html>
