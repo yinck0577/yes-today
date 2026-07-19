@@ -23,6 +23,7 @@ const rest = posts.slice(1);
 				width: 960px;
 				max-width: calc(100% - 2em);
 				margin: 0 auto;
+				overflow-x: hidden;
 			}
 			.site-tagline {
 				font-size: 0.95rem;
@@ -37,12 +38,34 @@ const rest = posts.slice(1);
 				color: var(--accent);
 				border-bottom: 2px solid var(--accent);
 				padding-bottom: 0.4em;
-				margin: 1.5em 0 1em 0;
+				margin: 0 0 0.3em 0;
+			}
+			.section-sub {
+				margin: 0.6em 0 1.3em 0;
+				color: rgb(var(--gray));
+				font-size: 0.95rem;
+			}
+			.featured-section {
+				background: #FFF8E8;
+				border-radius: 16px;
+				padding: 40px;
+				box-sizing: border-box;
+				margin-top: 1.5em;
+			}
+			.more-news-section {
+				background: #fff;
+				margin-top: 64px;
+			}
+			@media (max-width: 720px) {
+				.featured-section {
+					padding: 20px;
+				}
+				.more-news-section {
+					margin-top: 40px;
+				}
 			}
 			.carousel {
 				position: relative;
-				border-bottom: 1px solid rgb(var(--gray-light));
-				padding-bottom: 2em;
 			}
 			.carousel a.slide {
 				display: none;
@@ -64,7 +87,7 @@ const rest = posts.slice(1);
 			.slide .title {
 				margin: 0 0 0.4em 0;
 				font-size: 1.9rem;
-				line-height: 1.2;
+				line-height: 1.45;
 				color: rgb(var(--black));
 				display: -webkit-box;
 				-webkit-line-clamp: 3;
@@ -160,6 +183,16 @@ const rest = posts.slice(1);
 				border-bottom: 1px solid rgb(var(--gray-light));
 				padding-bottom: 1em;
 			}
+			.news-list a.card-link {
+				border-radius: 10px;
+				transition: transform 180ms ease, box-shadow 180ms ease;
+			}
+			@media (prefers-reduced-motion: no-preference) {
+				.news-list a.card-link:hover {
+					transform: translateY(-2px);
+					box-shadow: 0 4px 12px rgba(var(--gray), 15%);
+				}
+			}
 			.news-list img {
 				width: 100%;
 				border-radius: 10px;
@@ -200,67 +233,73 @@ const rest = posts.slice(1);
 		<Header />
 		<main>
 			<h1 class="site-tagline">Yes Today｜把今天的新聞變成能用的資訊</h1>
-			<h2 class="section-title">今日焦點</h2>
-			<div class="carousel" id="hero-carousel">
-				{
-					featuredSlides.length > 1 && (
-						<button type="button" class="carousel-arrow prev" aria-label="上一則">‹</button>
-					)
-				}
-				{
-					featuredSlides.map((post, i) => (
-						<a class={`card-link slide${i === 0 ? ' is-active' : ''}`} href={`/blog/${post.id}/`} data-slide={i}>
-							<div class="slide-inner" style="display:contents">
-								<img width={720} height={360} src={post.data.heroImage} alt={post.data.title} />
-								<div>
+			<div class="featured-section">
+				<h2 class="section-title">今日焦點</h2>
+				<p class="section-sub">今天最值得理解的一件事</p>
+				<div class="carousel" id="hero-carousel">
+					{
+						featuredSlides.length > 1 && (
+							<button type="button" class="carousel-arrow prev" aria-label="上一則">‹</button>
+						)
+					}
+					{
+						featuredSlides.map((post, i) => (
+							<a class={`card-link slide${i === 0 ? ' is-active' : ''}`} href={`/blog/${post.id}/`} data-slide={i}>
+								<div class="slide-inner" style="display:contents">
+									<img width={720} height={360} src={post.data.heroImage} alt={post.data.title} />
+									<div>
+										{post.data.category && (
+											<span class="category-badge">{getCategoryName(post.data.category)}</span>
+										)}
+										<p class="date">
+											<FormattedDate date={post.data.pubDate} />
+										</p>
+										<h2 class="title">{post.data.title}</h2>
+										<p class="description">{post.data.description}</p>
+									</div>
+								</div>
+							</a>
+						))
+					}
+					{
+						featuredSlides.length > 1 && (
+							<button type="button" class="carousel-arrow next" aria-label="下一則">›</button>
+						)
+					}
+					{
+						featuredSlides.length > 1 && (
+							<div class="carousel-dots">
+								{featuredSlides.map((_, i) => (
+									<button type="button" data-dot={i} class={i === 0 ? 'is-active' : ''} aria-label={`第 ${i + 1} 則`} />
+								))}
+							</div>
+						)
+					}
+				</div>
+			</div>
+
+			<div class="more-news-section">
+				<h2 class="section-title">更多新聞</h2>
+				<p class="section-sub">掌握近期與生活有關的重要消息</p>
+				<ul class="news-list">
+					{
+						rest.map((post) => (
+							<li>
+								<a class="card-link" href={`/blog/${post.id}/`}>
+									<img width={360} height={200} src={post.data.heroImage} alt={post.data.title} loading="lazy" />
 									{post.data.category && (
 										<span class="category-badge">{getCategoryName(post.data.category)}</span>
 									)}
 									<p class="date">
 										<FormattedDate date={post.data.pubDate} />
 									</p>
-									<h2 class="title">{post.data.title}</h2>
-									<p class="description">{post.data.description}</p>
-								</div>
-							</div>
-						</a>
-					))
-				}
-				{
-					featuredSlides.length > 1 && (
-						<button type="button" class="carousel-arrow next" aria-label="下一則">›</button>
-					)
-				}
-				{
-					featuredSlides.length > 1 && (
-						<div class="carousel-dots">
-							{featuredSlides.map((_, i) => (
-								<button type="button" data-dot={i} class={i === 0 ? 'is-active' : ''} aria-label={`第 ${i + 1} 則`} />
-							))}
-						</div>
-					)
-				}
+									<h3 class="title">{post.data.title}</h3>
+								</a>
+							</li>
+						))
+					}
+				</ul>
 			</div>
-
-			<h2 class="section-title">更多新聞</h2>
-			<ul class="news-list">
-				{
-					rest.map((post) => (
-						<li>
-							<a class="card-link" href={`/blog/${post.id}/`}>
-								<img width={360} height={200} src={post.data.heroImage} alt={post.data.title} loading="lazy" />
-								{post.data.category && (
-									<span class="category-badge">{getCategoryName(post.data.category)}</span>
-								)}
-								<p class="date">
-									<FormattedDate date={post.data.pubDate} />
-								</p>
-								<h3 class="title">{post.data.title}</h3>
-							</a>
-						</li>
-					))
-				}
-			</ul>
 		</main>
 		<Footer />
 		<script>
