@@ -190,10 +190,10 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 				border-color: var(--accent);
 			}
 			.carousel-arrow.prev {
-				left: -15px;
+				left: -18px;
 			}
 			.carousel-arrow.next {
-				right: -15px;
+				right: -18px;
 			}
 			.carousel-dots {
 				position: absolute;
@@ -265,9 +265,6 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 					top: auto;
 					bottom: 8px;
 					transform: none;
-				}
-				.carousel-outer .slide-images .carousel-arrow {
-					display: none;
 				}
 				.carousel-arrow.prev {
 					left: 8px;
@@ -407,8 +404,12 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 			<h1 class="site-tagline">Yes Today｜把今天的新聞變成能用的資訊</h1>
 			<div class="featured-section">
 				<h2 class="section-title">今日焦點</h2>
-				<p class="section-sub">今天最值得理解的一件事</p>
 				<div class="carousel-outer" id="hero-carousel">
+					{
+						featuredSlides.length > 1 && (
+							<button type="button" class="carousel-arrow prev" aria-label="上一則焦點文章">‹</button>
+						)
+					}
 					<div class="slide-images">
 						{
 							featuredSlides.map((post, i) => (
@@ -419,11 +420,6 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 						}
 					</div>
 					<div class="info-card">
-						{
-							featuredSlides.length > 1 && (
-								<button type="button" class="carousel-arrow prev" aria-label="上一則焦點文章">‹</button>
-							)
-						}
 						{
 							featuredSlides.map((post, i) => (
 								<a class={`slide-text${i === 0 ? ' is-active' : ''}`} href={`/blog/${post.id}/`} data-slide={i}>
@@ -441,11 +437,6 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 						}
 						{
 							featuredSlides.length > 1 && (
-								<button type="button" class="carousel-arrow next" aria-label="下一則焦點文章">›</button>
-							)
-						}
-						{
-							featuredSlides.length > 1 && (
 								<div class="carousel-dots">
 									{featuredSlides.map((_, i) => (
 										<button type="button" data-dot={i} class={i === 0 ? 'is-active' : ''} aria-label={`第 ${i + 1} 則`} />
@@ -454,6 +445,11 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 							)
 						}
 					</div>
+					{
+						featuredSlides.length > 1 && (
+							<button type="button" class="carousel-arrow next" aria-label="下一則焦點文章">›</button>
+						)
+					}
 				</div>
 			</div>
 
@@ -625,6 +621,20 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 						restart();
 					});
 				}
+
+				function fitHeight() {
+					const card = carousel.querySelector('.info-card');
+					if (!card) return;
+					const cardTop = card.offsetTop;
+					const needed = cardTop + card.offsetHeight + cardTop;
+					if (window.innerWidth > 767) {
+						carousel.style.minHeight = Math.max(360, needed) + 'px';
+					} else {
+						carousel.style.minHeight = '';
+					}
+				}
+				fitHeight();
+				window.addEventListener('resize', fitHeight);
 
 				carousel.addEventListener('mouseenter', stop);
 				carousel.addEventListener('mouseleave', start);
