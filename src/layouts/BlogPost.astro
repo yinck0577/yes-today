@@ -465,5 +465,18 @@ const articleLD = {
 				update();
 			})();
 		</script>
+		<script>
+			(function () {
+				const prose = document.querySelector('.prose');
+				if (!prose) return;
+				const links = prose.querySelectorAll('a[href^="http"]');
+				links.forEach(function (link) {
+					if (link.hostname && link.hostname !== window.location.hostname) {
+						link.setAttribute('target', '_blank');
+						link.setAttribute('rel', 'noopener noreferrer');
+					}
+				});
+			})();
+		</script>
 	</body>
 </html>
