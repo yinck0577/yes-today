@@ -59,68 +59,97 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 			}
 			.carousel-outer {
 				position: relative;
+				width: 100%;
+				max-width: 1180px;
+				min-height: 360px;
+				margin: 0 auto;
+				overflow: visible;
+				border-radius: 6px;
 				background: #a0c8fa;
-				border-radius: 20px;
-				padding: 28px 56px;
-				box-sizing: border-box;
 			}
-			@media (max-width: 720px) {
-				.carousel-outer {
-					padding: 16px 40px;
+			.slide-images {
+				display: grid;
+				position: absolute;
+				top: 0;
+				right: 0;
+				width: 56%;
+				height: 100%;
+				border-radius: 0 6px 6px 0;
+				overflow: hidden;
+			}
+			.carousel-outer a.slide-img {
+				grid-area: 1 / 1;
+				width: 100%;
+				height: 100%;
+				display: block;
+				opacity: 0;
+				visibility: hidden;
+				pointer-events: none;
+			}
+			@media (prefers-reduced-motion: no-preference) {
+				.carousel-outer a.slide-img,
+				.info-card a.slide-text {
+					transition: opacity 0.25s ease;
 				}
 			}
-			.carousel {
+			.carousel-outer a.slide-img.is-active {
+				opacity: 1;
+				visibility: visible;
+				pointer-events: auto;
+			}
+			.carousel-outer a.slide-img img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				object-position: center;
+				display: block;
+			}
+			.info-card {
+				position: absolute;
+				top: 42px;
+				left: 44px;
+				width: 520px;
+				min-height: 270px;
+				height: auto;
+				padding: 28px 44px;
+				background: #fff;
+				border-radius: 4px;
+				box-sizing: border-box;
+				z-index: 5;
 				display: grid;
 			}
-			.carousel a.slide {
+			.info-card a.slide-text {
 				grid-area: 1 / 1;
-				display: grid;
-				grid-template-columns: 1fr 1fr;
-				gap: 24px;
-				align-items: stretch;
+				display: block;
+				text-decoration: none;
+				color: inherit;
 				visibility: hidden;
 				opacity: 0;
 				pointer-events: none;
 			}
-			@media (prefers-reduced-motion: no-preference) {
-				.carousel a.slide {
-					transition: opacity 0.25s ease;
-				}
-			}
-			.carousel a.slide.is-active {
+			.info-card a.slide-text.is-active {
 				visibility: visible;
 				opacity: 1;
 				pointer-events: auto;
 			}
-			.slide-text {
-				background: #fff;
-				border-radius: 14px;
-				padding: 28px;
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
-				box-sizing: border-box;
-			}
-			.slide img {
-				width: 100%;
-				height: 100%;
-				min-height: 320px;
-				object-fit: contain;
-				object-position: center;
-				border-radius: 14px;
-				display: block;
-				background: rgba(255, 255, 255, 0.15);
-			}
-			.slide .title {
-				margin: 0 0 0.5em 0;
-				font-size: 1.7rem;
+			.slide-text .title {
+				margin: 0.3em 0;
+				font-size: 30px;
+				font-weight: 600;
 				line-height: 1.4;
-				color: rgb(var(--black));
+				color: #171717;
 			}
-			.slide .description {
-				color: rgb(var(--gray-dark));
-				line-height: 1.7;
-				margin: 0;
+			.slide-text .description {
+				font-size: 16px;
+				line-height: 1.75;
+				color: #333;
+				margin: 0 0 0.7em 0;
+			}
+			.slide-text .read-more {
+				display: inline-block;
+				color: var(--accent);
+				font-weight: 600;
+				font-size: 0.9rem;
 			}
 			.date {
 				margin: 0.3em 0 0.6em 0;
@@ -135,57 +164,120 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 				font-weight: 700;
 				padding: 0.2em 0.7em;
 				border-radius: 4px;
-				margin-bottom: 0.5em;
 				width: fit-content;
 			}
 			.carousel-arrow {
 				position: absolute;
 				top: 50%;
 				transform: translateY(-50%);
-				z-index: 5;
-				width: 40px;
-				height: 40px;
+				z-index: 6;
+				width: 30px;
+				height: 30px;
 				border-radius: 50%;
-				border: none;
-				background: #fff;
-				color: rgb(var(--gray-dark));
-				font-size: 1.4rem;
+				border: 1px solid rgba(0, 0, 0, 0.12);
+				background: rgba(255, 255, 255, 0.95);
+				color: #171717;
+				font-size: 1rem;
 				line-height: 1;
 				cursor: pointer;
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				box-shadow: var(--box-shadow);
+				padding: 0;
 			}
 			.carousel-arrow:hover {
 				color: var(--accent);
+				border-color: var(--accent);
 			}
 			.carousel-arrow.prev {
-				left: 12px;
+				left: -15px;
 			}
 			.carousel-arrow.next {
-				right: 12px;
+				right: -15px;
 			}
 			.carousel-dots {
+				position: absolute;
+				left: 50%;
+				bottom: 14px;
+				transform: translateX(-50%);
 				display: flex;
-				justify-content: center;
-				gap: 0.5em;
-				margin-top: 1.2em;
+				gap: 0.4em;
+				z-index: 6;
 			}
 			.carousel-dots button {
-				width: 8px;
-				height: 8px;
+				width: 7px;
+				height: 7px;
 				border-radius: 50%;
 				border: none;
-				background: rgba(255, 255, 255, 0.5);
+				background: rgb(var(--gray-light));
 				padding: 0;
 				cursor: pointer;
 			}
 			.carousel-dots button.is-active {
-				background: #fff;
-				width: 22px;
+				background: var(--accent);
+				width: 20px;
 				border-radius: 4px;
 				transition: width 0.2s ease;
+			}
+			@media (max-width: 1023px) and (min-width: 768px) {
+				.carousel-outer {
+					min-height: 340px;
+				}
+				.slide-images {
+					width: 58%;
+				}
+				.info-card {
+					width: 48%;
+					left: 24px;
+					top: 30px;
+					padding: 22px 26px;
+				}
+				.slide-text .title {
+					font-size: 26px;
+				}
+			}
+			@media (max-width: 767px) {
+				.carousel-outer {
+					min-height: 0;
+					overflow: hidden;
+				}
+				.slide-images {
+					position: relative;
+					top: auto;
+					right: auto;
+					width: 100%;
+					height: auto;
+					aspect-ratio: 16 / 9;
+					border-radius: 6px 6px 0 0;
+				}
+				.info-card {
+					position: relative;
+					top: auto;
+					left: auto;
+					width: 100%;
+					padding: 20px;
+					border-radius: 0 0 6px 6px;
+				}
+				.slide-text .title {
+					font-size: 28px;
+				}
+				.carousel-arrow {
+					top: auto;
+					bottom: 8px;
+					transform: none;
+				}
+				.carousel-outer .slide-images .carousel-arrow {
+					display: none;
+				}
+				.carousel-arrow.prev {
+					left: 8px;
+				}
+				.carousel-arrow.next {
+					right: 8px;
+				}
+				.carousel-dots {
+					bottom: 8px;
+				}
 			}
 			a.card-link {
 				text-decoration: none;
@@ -316,8 +408,17 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 			<div class="featured-section">
 				<h2 class="section-title">今日焦點</h2>
 				<p class="section-sub">今天最值得理解的一件事</p>
-				<div class="carousel-outer">
-					<div class="carousel" id="hero-carousel">
+				<div class="carousel-outer" id="hero-carousel">
+					<div class="slide-images">
+						{
+							featuredSlides.map((post, i) => (
+								<a class={`slide-img${i === 0 ? ' is-active' : ''}`} href={`/blog/${post.id}/`} data-slide={i}>
+									<img width={720} height={360} src={post.data.heroImage} alt={post.data.title} />
+								</a>
+							))
+						}
+					</div>
+					<div class="info-card">
 						{
 							featuredSlides.length > 1 && (
 								<button type="button" class="carousel-arrow prev" aria-label="上一則焦點文章">‹</button>
@@ -325,18 +426,16 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 						}
 						{
 							featuredSlides.map((post, i) => (
-								<a class={`card-link slide${i === 0 ? ' is-active' : ''}`} href={`/blog/${post.id}/`} data-slide={i}>
-									<img width={720} height={360} src={post.data.heroImage} alt={post.data.title} />
-									<div class="slide-text">
-										{post.data.category && (
-											<span class="category-badge">{getCategoryName(post.data.category)}</span>
-										)}
-										<p class="date">
-											<FormattedDate date={post.data.pubDate} />
-										</p>
-										<h2 class="title">{post.data.title}</h2>
-										<p class="description">{post.data.description}</p>
-									</div>
+								<a class={`slide-text${i === 0 ? ' is-active' : ''}`} href={`/blog/${post.id}/`} data-slide={i}>
+									{post.data.category && (
+										<span class="category-badge">{getCategoryName(post.data.category)}</span>
+									)}
+									<p class="date">
+										<FormattedDate date={post.data.pubDate} />
+									</p>
+									<h2 class="title">{post.data.title}</h2>
+									<p class="description">{post.data.description}</p>
+									<span class="read-more">閱讀全文 →</span>
 								</a>
 							))
 						}
@@ -345,16 +444,16 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 								<button type="button" class="carousel-arrow next" aria-label="下一則焦點文章">›</button>
 							)
 						}
+						{
+							featuredSlides.length > 1 && (
+								<div class="carousel-dots">
+									{featuredSlides.map((_, i) => (
+										<button type="button" data-dot={i} class={i === 0 ? 'is-active' : ''} aria-label={`第 ${i + 1} 則`} />
+									))}
+								</div>
+							)
+						}
 					</div>
-					{
-						featuredSlides.length > 1 && (
-							<div class="carousel-dots">
-								{featuredSlides.map((_, i) => (
-									<button type="button" data-dot={i} class={i === 0 ? 'is-active' : ''} aria-label={`第 ${i + 1} 則`} />
-								))}
-							</div>
-						)
-					}
 				</div>
 			</div>
 
@@ -459,15 +558,19 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 		<script>
 			const carousel = document.getElementById('hero-carousel');
 			if (carousel) {
-				const slides = Array.from(carousel.querySelectorAll('.slide'));
-				const dots = Array.from(document.querySelectorAll('.carousel-dots button'));
+				const images = Array.from(carousel.querySelectorAll('.slide-img'));
+				const texts = Array.from(carousel.querySelectorAll('.slide-text'));
+				const dots = Array.from(carousel.querySelectorAll('.carousel-dots button'));
 				const prevBtn = carousel.querySelector('.carousel-arrow.prev');
 				const nextBtn = carousel.querySelector('.carousel-arrow.next');
 				let current = 0;
 				let timer;
 
 				function show(index) {
-					slides.forEach(function (s, i) {
+					images.forEach(function (s, i) {
+						s.classList.toggle('is-active', i === index);
+					});
+					texts.forEach(function (s, i) {
 						s.classList.toggle('is-active', i === index);
 					});
 					dots.forEach(function (d, i) {
@@ -477,15 +580,15 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 				}
 
 				function next() {
-					show((current + 1) % slides.length);
+					show((current + 1) % images.length);
 				}
 
 				function prev() {
-					show((current - 1 + slides.length) % slides.length);
+					show((current - 1 + images.length) % images.length);
 				}
 
 				function start() {
-					if (slides.length > 1) {
+					if (images.length > 1) {
 						timer = setInterval(next, 15000);
 					}
 				}
@@ -523,24 +626,21 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 					});
 				}
 
-				const carouselOuter = document.querySelector('.carousel-outer');
-				if (carouselOuter) {
-					carouselOuter.addEventListener('mouseenter', stop);
-					carouselOuter.addEventListener('mouseleave', start);
-					carouselOuter.addEventListener('focusin', stop);
-					carouselOuter.addEventListener('focusout', start);
-					carouselOuter.addEventListener('keydown', function (e) {
-						if (e.key === 'ArrowLeft') {
-							e.preventDefault();
-							prev();
-							restart();
-						} else if (e.key === 'ArrowRight') {
-							e.preventDefault();
-							next();
-							restart();
-						}
-					});
-				}
+				carousel.addEventListener('mouseenter', stop);
+				carousel.addEventListener('mouseleave', start);
+				carousel.addEventListener('focusin', stop);
+				carousel.addEventListener('focusout', start);
+				carousel.addEventListener('keydown', function (e) {
+					if (e.key === 'ArrowLeft') {
+						e.preventDefault();
+						prev();
+						restart();
+					} else if (e.key === 'ArrowRight') {
+						e.preventDefault();
+						next();
+						restart();
+					}
+				});
 
 				start();
 			}
