@@ -2,7 +2,7 @@
 title: '台北以前叫Taihoku？日治時期台灣城市名稱與日文讀音一次看懂'
 description: '日治時期的地圖、明信片與英文文獻中，台北常被寫成Taihoku，台中則寫成Taichū。《Yes Today》帶你了解台灣城市名稱在日治時期的讀法與演變，並釐清哪些名稱確實曾經使用，哪些只是依日文音讀推演而來。'
 pubDate: 'Jul 19 2026 11:00:00'
-heroImage: '/exec-4f3a8e17-f2c6-4869-a97b-c2c0d6e12793.png'
+heroImage: '/exec-c4f245bc-9693-40ba-a871-d740dbabec1c.png'
 category: 'arts'
 ---
 
