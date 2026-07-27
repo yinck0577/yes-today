@@ -366,6 +366,15 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 			.latest-list a:hover .l-title {
 				color: var(--accent);
 			}
+			.l-stats {
+				margin: 0.4em 0 0 0;
+				display: flex;
+				gap: 0.9em;
+			}
+			.l-stats span {
+				font-size: 0.78rem;
+				color: rgb(var(--gray));
+			}
 			@media (max-width: 720px) {
 				.latest-list li {
 					grid-template-columns: 120px minmax(0, 1fr);
@@ -471,6 +480,10 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 												</p>
 											)}
 											<p class="l-title">{post.data.title}</p>
+											<p class="l-stats" data-slug={post.id}>
+												<span class="l-comment">💬 -</span>
+												<span class="l-like">♡ -</span>
+											</p>
 										</div>
 									</a>
 								</li>
@@ -655,6 +668,38 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 
 				start();
 			}
+		</script>
+		<script>
+			(function () {
+				const statsEls = Array.from(document.querySelectorAll('.l-stats[data-slug]'));
+				if (!statsEls.length) return;
+				const slugs = statsEls.map(function (el) {
+					return el.getAttribute('data-slug');
+				});
+				fetch('/api/counts?slugs=' + encodeURIComponent(slugs.join(',')))
+					.then(function (r) {
+						return r.ok ? r.json() : { counts: {} };
+					})
+					.then(function (data) {
+						const counts = data.counts || {};
+						statsEls.forEach(function (el) {
+							const slug = el.getAttribute('data-slug');
+							const c = counts[slug] || { comments: 0, likes: 0 };
+							const commentEl = el.querySelector('.l-comment');
+							const likeEl = el.querySelector('.l-like');
+							if (commentEl) commentEl.textContent = '💬 ' + c.comments;
+							if (likeEl) likeEl.textContent = '♡ ' + c.likes;
+						});
+					})
+					.catch(function () {
+						statsEls.forEach(function (el) {
+							const commentEl = el.querySelector('.l-comment');
+							const likeEl = el.querySelector('.l-like');
+							if (commentEl) commentEl.textContent = '';
+							if (likeEl) likeEl.textContent = '';
+						});
+					});
+			})();
 		</script>
 	</body>
 </html>
