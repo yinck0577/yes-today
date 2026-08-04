@@ -458,6 +458,39 @@ const articleLD = {
 			.comment-status-line.is-success {
 				color: #1a8a3c;
 			}
+			.infinite-article-block {
+				border-top: 1px solid rgb(var(--gray-light));
+				padding-top: 0;
+			}
+			.next-article-divider {
+				text-align: center;
+				margin: 1em 0 0.5em 0;
+				position: relative;
+			}
+			.next-article-divider span {
+				display: inline-block;
+				background: #fff;
+				padding: 0 1em;
+				color: rgb(var(--gray));
+				font-size: 0.85rem;
+				position: relative;
+				z-index: 1;
+			}
+			.next-article-divider::before {
+				content: '';
+				position: absolute;
+				left: 0;
+				right: 0;
+				top: 50%;
+				height: 1px;
+				background: rgb(var(--gray-light));
+			}
+			.infinite-scroll-status {
+				text-align: center;
+				color: rgb(var(--gray));
+				font-size: 0.9rem;
+				padding: 2em 0;
+			}
 		</style>
 	</head>
 
@@ -559,6 +592,8 @@ const articleLD = {
 					<p class="comment-status-line" id="comment-status" role="status"></p>
 				</form>
 			</div>
+			<div id="infinite-scroll-sentinel"></div>
+			<p id="infinite-scroll-status" class="infinite-scroll-status"></p>
 		</main>
 		<Footer />
 		<script define:vars={{ counterKey }}>
@@ -868,6 +903,187 @@ const articleLD = {
 							});
 					});
 				}
+			})();
+		</script>
+		<script define:vars={{ currentId }}>
+			(function () {
+				const main = document.querySelector('main');
+				const sentinel = document.getElementById('infinite-scroll-sentinel');
+				const statusEl = document.getElementById('infinite-scroll-status');
+				if (!main || !sentinel || !currentId) return;
+
+				const shown = [currentId];
+				let anchor = currentId;
+				let loading = false;
+				let exhausted = false;
+				let blockCounter = 0;
+
+				function setLikedUI(btn, countEl, liked, count) {
+					if (!btn || !countEl) return;
+					btn.classList.toggle('is-liked', liked);
+					btn.setAttribute('aria-pressed', liked ? 'true' : 'false');
+					const icon = btn.querySelector('.like-icon');
+					if (icon) icon.textContent = liked ? '♥' : '♡';
+					countEl.textContent = String(Math.max(0, count));
+				}
+
+				function initViewCount(container, slug) {
+					const viewEl = container.querySelector('.view-count');
+					if (!viewEl) return;
+					fetch('https://countapi.mileshilliard.com/api/v1/hit/' + encodeURIComponent('yes-today-post-' + slug))
+						.then(function (r) {
+							return r.json();
+						})
+						.then(function (data) {
+							viewEl.textContent = '👁 ' + data.value + ' 次瀏覽';
+						})
+						.catch(function () {
+							viewEl.textContent = '';
+						});
+				}
+
+				function initLike(container, slug) {
+					const btn = container.querySelector('.like-btn');
+					const countEl = container.querySelector('.like-count');
+					if (!btn || !countEl) return;
+					const storageKey = 'liked:' + slug;
+					let liked = localStorage.getItem(storageKey) === '1';
+					let count = 0;
+					let busy = false;
+
+					fetch('/api/like/' + encodeURIComponent(slug))
+						.then(function (r) {
+							return r.ok ? r.json() : { count: 0 };
+						})
+						.then(function (data) {
+							count = data.count || 0;
+							setLikedUI(btn, countEl, liked, count);
+						})
+						.catch(function () {
+							setLikedUI(btn, countEl, liked, count);
+						});
+
+					btn.addEventListener('click', function () {
+						if (busy) return;
+						busy = true;
+						btn.disabled = true;
+						const nextLiked = !liked;
+						const optimistic = nextLiked ? count + 1 : Math.max(0, count - 1);
+						setLikedUI(btn, countEl, nextLiked, optimistic);
+						fetch('/api/like/' + encodeURIComponent(slug), {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({ action: nextLiked ? 'like' : 'unlike' }),
+						})
+							.then(function (r) {
+								return r.ok ? r.json() : null;
+							})
+							.then(function (data) {
+								count = data && typeof data.count === 'number' ? data.count : optimistic;
+								liked = nextLiked;
+								localStorage.setItem(storageKey, liked ? '1' : '0');
+								setLikedUI(btn, countEl, liked, count);
+							})
+							.catch(function () {
+								setLikedUI(btn, countEl, liked, count);
+							})
+							.finally(function () {
+								busy = false;
+								btn.disabled = false;
+							});
+					});
+				}
+
+				function initShare(container, articleUrl) {
+					const fbUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(articleUrl);
+					const lineUrl = 'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(articleUrl);
+					container.querySelectorAll('.share-btn.fb, .share-icon.fb').forEach(function (el) {
+						el.href = fbUrl;
+					});
+					container.querySelectorAll('.share-btn.line, .share-icon.line').forEach(function (el) {
+						el.href = lineUrl;
+					});
+				}
+
+				function loadNext() {
+					if (loading || exhausted) return;
+					loading = true;
+					fetch('/api/next-article/' + encodeURIComponent(anchor) + '?exclude=' + encodeURIComponent(shown.join(',')))
+						.then(function (r) {
+							return r.ok ? r.json() : { next: null };
+						})
+						.then(function (data) {
+							if (!data.next) {
+								exhausted = true;
+								if (statusEl) statusEl.textContent = '已經看完所有文章，謝謝閱讀。';
+								return null;
+							}
+							shown.push(data.next.id);
+							anchor = data.next.id;
+							return fetch(data.next.url).then(function (r) {
+								return r.text();
+							}).then(function (html) {
+								return { html: html, meta: data.next };
+							});
+						})
+						.then(function (result) {
+							if (!result) return;
+							const parser = new DOMParser();
+							const doc = parser.parseFromString(result.html, 'text/html');
+							const articleEl = doc.querySelector('main article');
+							if (!articleEl) return;
+
+							blockCounter++;
+
+							const wrapper = document.createElement('div');
+							wrapper.className = 'infinite-article-block';
+
+							const divider = document.createElement('div');
+							divider.className = 'next-article-divider';
+							const label = result.meta.categoryName ? result.meta.categoryName + ' ・ ' : '';
+							const span = document.createElement('span');
+							span.textContent = label + '接下來看這篇';
+							divider.appendChild(span);
+
+							wrapper.appendChild(divider);
+							wrapper.appendChild(articleEl);
+							main.insertBefore(wrapper, sentinel);
+
+							const fullUrl = window.location.origin + result.meta.url;
+							history.pushState({}, '', result.meta.url);
+							document.title = result.meta.title + ' - Yes Today';
+
+							initViewCount(articleEl, result.meta.id);
+							initLike(articleEl, result.meta.id);
+							initShare(articleEl, fullUrl);
+
+							const links = articleEl.querySelectorAll('.prose a[href^="http"]');
+							links.forEach(function (link) {
+								if (link.hostname && link.hostname !== window.location.hostname) {
+									link.setAttribute('target', '_blank');
+									link.setAttribute('rel', 'noopener noreferrer');
+								}
+							});
+						})
+						.catch(function () {
+							exhausted = true;
+						})
+						.finally(function () {
+							loading = false;
+						});
+				}
+
+				const observer = new IntersectionObserver(
+					function (entries) {
+						entries.forEach(function (entry) {
+							if (entry.isIntersecting) {
+								loadNext();
+							}
+						});
+					},
+					{ rootMargin: '400px 0px 400px 0px' },
+				);
+				observer.observe(sentinel);
 			})();
 		</script>
 	</body>
