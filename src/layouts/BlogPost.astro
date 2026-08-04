@@ -9,7 +9,7 @@ import { getCategoryName, SITE_TITLE } from '../consts';
 
 type Props = CollectionEntry<'blog'>['data'] & { currentId?: string };
 
-const { title, description, pubDate, updatedDate, heroImage, category, currentId } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, category, currentId, video } = Astro.props;
 
 const allPosts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
@@ -95,6 +95,25 @@ const articleLD = {
 				margin: 0 auto;
 				border-radius: 12px;
 				box-shadow: var(--box-shadow);
+			}
+			.article-video {
+				width: 380px;
+				max-width: 100%;
+				margin: 0 auto 1.5em auto;
+			}
+			.article-video video {
+				width: 100%;
+				aspect-ratio: 9 / 16;
+				object-fit: cover;
+				display: block;
+				border-radius: 12px;
+				background: #000;
+				box-shadow: var(--box-shadow);
+			}
+			@media (max-width: 480px) {
+				.article-video {
+					width: 260px;
+				}
 			}
 			.prose {
 				width: 720px;
@@ -531,6 +550,15 @@ const articleLD = {
 						<h1>{title}</h1>
 						<hr />
 					</div>
+					{
+						video && (
+							<div class="article-video">
+								<video controls preload="metadata" playsinline>
+									<source src={video} type="video/mp4" />
+								</video>
+							</div>
+						)
+					}
 					<div class="post-meta">
 						{category && <span class="category-tag">{getCategoryName(category)}</span>}
 						<span class="view-count" id="view-count">瀏覽數讀取中...</span>
