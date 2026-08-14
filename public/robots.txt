@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://blog.yes-today.workers.dev/sitemap-index.xml
