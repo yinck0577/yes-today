@@ -6,6 +6,24 @@ import { SITE_TITLE, SITE_DESCRIPTION, getCategoryName } from '../consts';
 import { getCollection } from 'astro:content';
 import FormattedDate from '../components/FormattedDate.astro';
 
+const websiteLD = {
+	'@context': 'https://schema.org',
+	'@type': 'WebSite',
+	name: SITE_TITLE,
+	url: 'https://blog.yes-today.workers.dev/',
+	description: SITE_DESCRIPTION,
+	inLanguage: 'zh-Hant',
+	publisher: {
+		'@type': 'Organization',
+		name: SITE_TITLE,
+		url: 'https://blog.yes-today.workers.dev/',
+		logo: {
+			'@type': 'ImageObject',
+			url: 'https://blog.yes-today.workers.dev/yestodaylogo.png',
+		},
+	},
+};
+
 const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
@@ -26,7 +44,8 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 <!doctype html>
 <html lang="zh-Hant">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<BaseHead title="Yes Today｜生活、政策與科技新聞整理平台" description={SITE_DESCRIPTION} />
+		<script type="application/ld+json" set:html={JSON.stringify(websiteLD)} />
 		<style>
 			main {
 				width: 1180px;
