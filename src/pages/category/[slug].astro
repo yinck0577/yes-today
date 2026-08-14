@@ -21,7 +21,10 @@ const posts = (await getCollection('blog', ({ data }) => data.category === slug)
 <!doctype html>
 <html lang="zh-Hant">
 	<head>
-		<BaseHead title={`${categoryName} - ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+		<BaseHead
+			title={`${categoryName} - ${SITE_TITLE}`}
+			description={`瀏覽 Yes Today 「${categoryName}」分類最新文章，整理${categoryName}相關新聞、政策與生活資訊，幫你快速掌握重點。`}
+		/>
 		<style>
 			main {
 				width: 960px;
