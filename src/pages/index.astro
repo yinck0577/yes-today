@@ -28,8 +28,8 @@ const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
-const featuredSlides = posts.slice(0, 5);
-const rest = posts.slice(1);
+const featuredSlides = posts.filter((post) => post.data.featured !== false).slice(0, 5);
+const rest = posts;
 
 const popularCandidates = posts.slice(0, 12).map((post) => ({
 	id: post.id,

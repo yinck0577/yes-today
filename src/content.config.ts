@@ -16,6 +16,9 @@ const blog = defineCollection({
 		// Category slug, see CATEGORIES in ../consts.ts. Optional so existing
 		// posts without a category keep working.
 		category: z.string().optional(),
+		// Articles explicitly marked false stay in the latest list but are
+		// excluded from the homepage featured carousel.
+		featured: z.boolean().optional(),
 		// Optional short vertical video (e.g. 9:16 mp4) shown between the title
 		// block and the article body. Not every post has one.
 		video: z.string().optional(),
