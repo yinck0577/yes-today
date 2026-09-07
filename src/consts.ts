@@ -17,9 +17,13 @@ export const CATEGORIES = [
 	{ slug: "arts", name: "藝文" },
 	{ slug: "sports", name: "運動" },
 	{ slug: "entertainment", name: "娛樂" },
-];
+		// Evergreen, non-time-sensitive content (world oddities, urban legends,
+		// trivia, etc.) surfaced via the homepage "奇聞軼事" bar. Posts are still
+		// normal blog entries; this is just a category slug like any other.
+	{ slug: "oddities", name: "奇聞軼事" },
+	];
 
 export function getCategoryName(slug: string) {
-	const found = CATEGORIES.find((c) => c.slug === slug);
-	return found ? found.name : slug;
+		const found = CATEGORIES.find((c) => c.slug === slug);
+		return found ? found.name : slug;
 }
