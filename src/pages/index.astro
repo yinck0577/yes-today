@@ -30,17 +30,17 @@ const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
-const newsPosts = posts.filter((post) => post.data.category !== 'oddities');
-const oddityPosts = dailyPick(
-	posts
-		.filter((post) => post.data.category === 'oddities')
-		.map((post) => ({ id: post.id, title: post.data.title, heroImage: post.data.heroImage })),
-	5,
-);
-const featuredSlides = newsPosts.filter((post) => post.data.featured !== false).slice(0, 5);
-const rest = newsPosts;
+const featuredSlides = posts.filter((post) => post.data.featured !== false).slice(0, 5);
+const rest = posts;
 
-const popularCandidates = newsPosts.slice(0, 12).map((post) => ({
+const ODDITY_SLUG = 'oddities';
+const oddityPool = posts
+	.filter((post) => post.data.category === ODDITY_SLUG)
+	.slice(0, 15)
+	.map((post) => ({ id: post.id, title: post.data.title, heroImage: post.data.heroImage }));
+const oddityPosts = dailyPick(oddityPool, 5);
+
+const popularCandidates = posts.slice(0, 12).map((post) => ({
 	id: post.id,
 	title: post.data.title,
 	heroImage: post.data.heroImage ?? '',
@@ -491,6 +491,8 @@ const popularCandidates = newsPosts.slice(0, 12).map((post) => ({
 				</div>
 			</div>
 
+			<OddityBar posts={oddityPosts} categorySlug={ODDITY_SLUG} categoryName={getCategoryName(ODDITY_SLUG)} />
+
 			<div class="two-col-section">
 				<div>
 					<h2 class="col-heading">最新文章</h2>
@@ -526,8 +528,6 @@ const popularCandidates = newsPosts.slice(0, 12).map((post) => ({
 					</ul>
 				</div>
 			</div>
-
-			<OddityBar posts={oddityPosts} categorySlug="oddities" categoryName="奇聞軼事" />
 		</main>
 		<Footer />
 		<script define:vars={{ popularCandidates }}>
@@ -732,4 +732,5 @@ const popularCandidates = newsPosts.slice(0, 12).map((post) => ({
 			})();
 		</script>
 	</body>
+</html>
 </html>
