@@ -172,6 +172,30 @@ const articleLD = {
 				.prose h3 {
 					font-size: 1.15rem;
 				}
+				/* Mobile-only reading density fix: desktop typography (global.css
+				   body font-size / .prose p margin) is untouched. */
+				.prose {
+					font-size: 16px;
+					line-height: 1.7;
+				}
+				.prose p {
+					margin-bottom: 1.15em;
+				}
+				.prose ul,
+				.prose ol {
+					font-size: 16px;
+					line-height: 1.7;
+					padding-left: 1.3em;
+					margin-bottom: 1.15em;
+				}
+				.prose blockquote {
+					font-size: 1em;
+					line-height: 1.7;
+					margin: 1em 0;
+				}
+				.prose figcaption {
+					font-size: 0.85em;
+				}
 			}
 			@media (max-width: 390px) {
 				.prose h2 {
