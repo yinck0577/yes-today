@@ -1,0 +1,177 @@
+---
+interface OddityPost {
+	id: string;
+	title: string;
+	heroImage?: string;
+}
+
+interface Props {
+	posts: OddityPost[];
+	categorySlug: string;
+	categoryName: string;
+}
+
+const { posts, categorySlug, categoryName } = Astro.props;
+---
+
+{
+	posts.length > 0 && (
+		<section class="oddity-bar" aria-label={categoryName}>
+			<div class="oddity-head">
+				<h2 class="oddity-title">{categoryName}</h2>
+				<a class="oddity-more" href={`/category/${categorySlug}/`}>
+					更多 →
+				</a>
+			</div>
+			<ul class="oddity-list">
+				{posts.map((post) => (
+					<li>
+						<a class="oddity-card" href={`/blog/${post.id}/`}>
+							{post.heroImage && (
+								<img
+									class="oddity-thumb"
+									src={post.heroImage}
+									alt={post.title}
+									width={240}
+									height={160}
+									loading="lazy"
+								/>
+							)}
+							<span class="oddity-badge">{categoryName}</span>
+							<p class="oddity-card-title">{post.title}</p>
+						</a>
+					</li>
+				))}
+			</ul>
+		</section>
+	)
+}
+
+<style>
+	.oddity-bar {
+		margin: 36px 0 0 0;
+	}
+	.oddity-head {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		border-bottom: 1px solid #d8d8d8;
+		padding-bottom: 8px;
+		margin-bottom: 14px;
+	}
+	.oddity-title {
+		font-size: 17px;
+		font-weight: 700;
+		color: #171717;
+		margin: 0;
+		position: relative;
+		padding-left: 12px;
+	}
+	.oddity-title::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 2px;
+		bottom: 2px;
+		width: 3px;
+		background: #ff8a3d;
+		border-radius: 2px;
+	}
+	.oddity-more {
+		font-size: 0.82rem;
+		color: rgb(var(--gray));
+		text-decoration: none;
+		font-weight: 600;
+		white-space: nowrap;
+	}
+	.oddity-more:hover {
+		color: var(--accent);
+	}
+	.oddity-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(5, minmax(0, 1fr));
+		gap: 16px;
+	}
+	.oddity-card {
+		display: block;
+		text-decoration: none;
+		border-radius: 8px;
+		padding: 6px;
+		margin: -6px;
+		transition: background 0.15s ease;
+	}
+	.oddity-card:hover {
+		background: #fff6ee;
+	}
+	.oddity-thumb {
+		width: 100%;
+		aspect-ratio: 3 / 2;
+		object-fit: cover;
+		display: block;
+		border-radius: 6px;
+		margin-bottom: 8px;
+		transition: transform 0.2s ease;
+	}
+	.oddity-card:hover .oddity-thumb {
+		transform: scale(1.03);
+	}
+	.oddity-badge {
+		display: inline-block;
+		font-size: 0.68rem;
+		font-weight: 700;
+		color: #b5540f;
+		background: #ffe9d6;
+		border: 1px solid #f6c99a;
+		padding: 0.1em 0.55em;
+		border-radius: 10px;
+		margin-bottom: 6px;
+	}
+	.oddity-card-title {
+		margin: 0;
+		font-size: 14px;
+		line-height: 1.5;
+		font-weight: 600;
+		color: #171717;
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+	.oddity-card:hover .oddity-card-title {
+		color: var(--accent);
+	}
+
+	@media (max-width: 1023px) and (min-width: 768px) {
+		.oddity-list {
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 767px) {
+		.oddity-bar {
+			margin-top: 28px;
+		}
+		.oddity-list {
+			display: flex;
+			overflow-x: auto;
+			gap: 12px;
+			padding-bottom: 4px;
+			scroll-snap-type: x mandatory;
+			-ms-overflow-style: none;
+			scrollbar-width: none;
+		}
+		.oddity-list::-webkit-scrollbar {
+			display: none;
+		}
+		.oddity-list li {
+			flex: 0 0 130px;
+			scroll-snap-align: start;
+		}
+		.oddity-card-title {
+			font-size: 13px;
+		}
+	}
+</style>
