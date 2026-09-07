@@ -5,6 +5,8 @@ import Footer from '../components/Footer.astro';
 import { SITE_TITLE, SITE_DESCRIPTION, getCategoryName } from '../consts';
 import { getCollection } from 'astro:content';
 import FormattedDate from '../components/FormattedDate.astro';
+import OddityBar from '../components/OddityBar.astro';
+import { dailyPick } from '../utils/dailyShuffle';
 
 const websiteLD = {
 	'@context': 'https://schema.org',
@@ -28,10 +30,17 @@ const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
-const featuredSlides = posts.filter((post) => post.data.featured !== false).slice(0, 5);
-const rest = posts;
+const newsPosts = posts.filter((post) => post.data.category !== 'oddities');
+const oddityPosts = dailyPick(
+	posts
+		.filter((post) => post.data.category === 'oddities')
+		.map((post) => ({ id: post.id, title: post.data.title, heroImage: post.data.heroImage })),
+	5,
+);
+const featuredSlides = newsPosts.filter((post) => post.data.featured !== false).slice(0, 5);
+const rest = newsPosts;
 
-const popularCandidates = posts.slice(0, 12).map((post) => ({
+const popularCandidates = newsPosts.slice(0, 12).map((post) => ({
 	id: post.id,
 	title: post.data.title,
 	heroImage: post.data.heroImage ?? '',
@@ -517,6 +526,8 @@ const popularCandidates = posts.slice(0, 12).map((post) => ({
 					</ul>
 				</div>
 			</div>
+
+			<OddityBar posts={oddityPosts} categorySlug="oddities" categoryName="奇聞軼事" />
 		</main>
 		<Footer />
 		<script define:vars={{ popularCandidates }}>
