@@ -30,17 +30,18 @@ const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
-const featuredSlides = posts.filter((post) => post.data.featured !== false).slice(0, 5);
-const rest = posts;
-
 const ODDITY_SLUG = 'oddities';
+const newsPosts = posts.filter((post) => post.data.category !== ODDITY_SLUG);
+const featuredSlides = newsPosts.filter((post) => post.data.featured !== false).slice(0, 5);
+const rest = newsPosts;
+
 const oddityPool = posts
 	.filter((post) => post.data.category === ODDITY_SLUG)
 	.slice(0, 15)
 	.map((post) => ({ id: post.id, title: post.data.title, heroImage: post.data.heroImage }));
 const oddityPosts = dailyPick(oddityPool, 5);
 
-const popularCandidates = posts.slice(0, 12).map((post) => ({
+const popularCandidates = newsPosts.slice(0, 12).map((post) => ({
 	id: post.id,
 	title: post.data.title,
 	heroImage: post.data.heroImage ?? '',
