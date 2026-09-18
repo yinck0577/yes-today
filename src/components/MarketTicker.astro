@@ -1,0 +1,254 @@
+---
+// Market Ticker: server renders a fixed-height skeleton only (no live data
+// at build/prerender time), then a client-side script fetches the cached
+// /api/market-ticker.json endpoint and fills it in. This keeps index.astro
+// fully static while still showing near-real-time market data, and means
+// visitors never trigger a direct call to TWSE/TPEx/Marketstack themselves.
+---
+
+<div class="market-ticker" id="market-ticker" aria-label="市場快訊" data-state="loading">
+	<div class="ticker-inner" id="ticker-inner">
+		{
+			Array.from({ length: 4 }).map(() => (
+				<div class="ticker-item is-skeleton">
+					<span class="m-name">&nbsp;</span>
+					<span class="m-value">&nbsp;</span>
+					<span class="m-change">&nbsp;</span>
+				</div>
+			))
+		}
+	</div>
+	<span class="ticker-note" id="ticker-note"></span>
+</div>
+
+<script>
+	(function () {
+		const root = document.getElementById('market-ticker');
+		const inner = document.getElementById('ticker-inner');
+		const note = document.getElementById('ticker-note');
+		if (!root || !inner || !note) return;
+
+		const numberFmt = new Intl.NumberFormat('zh-Hant', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+		function directionSymbol(direction) {
+			if (direction === 'up') return '▲';
+			if (direction === 'down') return '▼';
+			return '—';
+		}
+
+		function formatSigned(n) {
+			if (n === null || n === undefined || Number.isNaN(n)) return '-';
+			const sign = n > 0 ? '+' : '';
+			return sign + numberFmt.format(n);
+		}
+
+		function render(quotes) {
+			inner.innerHTML = '';
+			inner.style.setProperty('--ticker-count', String(quotes.length));
+			quotes.forEach(function (q) {
+				const item = document.createElement('div');
+				item.className = 'ticker-item';
+				item.dataset.direction = q.direction;
+
+				const name = document.createElement('span');
+				name.className = 'm-name';
+				name.innerHTML =
+					'<span class="full">' + q.name + '</span><span class="short">' + q.shortName + '</span>';
+
+				const value = document.createElement('span');
+				value.className = 'm-value';
+				value.textContent = q.value === null ? '-' : numberFmt.format(q.value);
+
+				const change = document.createElement('span');
+				change.className = 'm-change';
+				const arrow = document.createElement('span');
+				arrow.className = 'arrow';
+				arrow.textContent = directionSymbol(q.direction);
+				const points = document.createElement('span');
+				points.className = 'points';
+				points.textContent = q.change === null ? '' : formatSigned(q.change);
+				const percent = document.createElement('span');
+				percent.className = 'percent';
+				percent.textContent = q.changePercent === null ? '' : '(' + formatSigned(q.changePercent) + '%)';
+				const percentOnly = document.createElement('span');
+				percentOnly.className = 'percent-only';
+				percentOnly.textContent = q.changePercent === null ? '' : formatSigned(q.changePercent) + '%';
+
+				change.append(arrow, points, percent, percentOnly);
+				item.append(name, value, change);
+				inner.appendChild(item);
+			});
+		}
+
+		fetch('/api/market-ticker.json')
+			.then(function (r) {
+				return r.ok ? r.json() : { quotes: [], fetchedAt: null };
+			})
+			.then(function (data) {
+				const quotes = data.quotes || [];
+				if (!quotes.length) {
+					root.setAttribute('data-state', 'empty');
+					root.style.display = 'none';
+					return;
+				}
+				render(quotes);
+				root.setAttribute('data-state', 'ready');
+				if (data.fetchedAt) {
+					const d = new Date(data.fetchedAt);
+					const label = (d.getMonth() + 1).toString().padStart(2, '0') + '/' + d.getDate().toString().padStart(2, '0');
+					note.textContent = '資料截至 ' + label + ' 收盤';
+				}
+			})
+			.catch(function () {
+				root.setAttribute('data-state', 'empty');
+				root.style.display = 'none';
+			});
+	})();
+</script>
+
+<style>
+	.market-ticker {
+		width: 100%;
+		background: #fafafa;
+		border-bottom: 1px solid #e2e2e2;
+		box-sizing: border-box;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 1em;
+		height: 40px;
+		overflow: hidden;
+	}
+	.ticker-inner {
+		width: 1180px;
+		max-width: calc(100% - 2em);
+		margin: 0 auto;
+		display: grid;
+		grid-template-columns: repeat(var(--ticker-count, 4), minmax(0, 1fr));
+		align-items: center;
+		height: 100%;
+	}
+	.ticker-item {
+		display: flex;
+		align-items: baseline;
+		justify-content: center;
+		gap: 0.5em;
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
+		min-width: 0;
+	}
+	.ticker-item.is-skeleton {
+		background: linear-gradient(90deg, #ececec 25%, #f5f5f5 37%, #ececec 63%);
+		background-size: 400% 100%;
+		animation: ticker-shimmer 1.4s ease infinite;
+		border-radius: 4px;
+		height: 14px;
+		margin: 0 8px;
+	}
+	@keyframes ticker-shimmer {
+		0% {
+			background-position: 100% 50%;
+		}
+		100% {
+			background-position: 0 50%;
+		}
+	}
+	.m-name {
+		font-size: 13px;
+		font-weight: 500;
+		color: #171717;
+	}
+	.m-name .short {
+		display: none;
+	}
+	.m-value {
+		font-size: 13px;
+		color: #171717;
+	}
+	.m-change {
+		font-size: 13px;
+		display: inline-flex;
+		align-items: baseline;
+		gap: 0.3em;
+	}
+	.m-change .percent-only {
+		display: none;
+	}
+	.ticker-item[data-direction='up'] .m-change {
+		color: #d3302f;
+	}
+	.ticker-item[data-direction='down'] .m-change {
+		color: #1a9c5c;
+	}
+	.ticker-item[data-direction='flat'] .m-change {
+		color: #767676;
+	}
+	.ticker-note {
+		display: none;
+		font-size: 11px;
+		color: rgb(var(--gray));
+		white-space: nowrap;
+	}
+
+	/* ----- Tablet: 768–1023px — still one row of 4, shortened names ----- */
+	@media (max-width: 1023px) {
+		.market-ticker {
+			height: 38px;
+		}
+		.m-name .full {
+			display: none;
+		}
+		.m-name .short {
+			display: inline;
+		}
+		.m-change .points,
+		.m-change .percent {
+			display: none;
+		}
+		.m-change .percent-only {
+			display: inline;
+		}
+	}
+
+	/* ----- Mobile: 360–767px — 2×2 grid, percent-only ----- */
+	@media (max-width: 767px) {
+		.market-ticker {
+			height: 70px;
+			padding: 0 12px;
+			box-sizing: border-box;
+		}
+		.ticker-inner {
+			grid-template-columns: 1fr 1fr;
+			grid-auto-rows: 1fr;
+			row-gap: 2px;
+			max-width: 100%;
+		}
+		.ticker-item {
+			justify-content: flex-start;
+			gap: 0.4em;
+		}
+		.ticker-item.is-skeleton {
+			height: 12px;
+			margin: 4px 6px;
+		}
+		.m-name,
+		.m-value,
+		.m-change {
+			font-size: 13px;
+		}
+		.m-value {
+			display: none;
+		}
+	}
+
+	/* ----- Small mobile: 320–359px ----- */
+	@media (max-width: 359px) {
+		.market-ticker {
+			padding: 0 8px;
+		}
+		.m-name,
+		.m-change {
+			font-size: 12px;
+		}
+	}
+</style>
