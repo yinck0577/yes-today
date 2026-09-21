@@ -1,0 +1,200 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_TITLE } from '../consts';
+
+const query = Astro.url.searchParams.get('q')?.trim() ?? '';
+const title = query ? `搜尋「${query}」- ${SITE_TITLE}` : `搜尋 - ${SITE_TITLE}`;
+const description = query
+? `在 ${SITE_TITLE} 搜尋與「${query}」相關的文章。`
+: `在 ${SITE_TITLE} 搜尋文章、人物、事件與關鍵字。`;
+---
+
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<BaseHead title={title} description={description} />
+<meta name="robots" content="noindex, follow" />
+<style>
+main {
+width: 900px;
+max-width: calc(100% - 2em);
+margin: 0 auto;
+padding: 2em 1em 4em 1em;
+}
+h1 {
+font-size: 1.5rem;
+margin: 0 0 0.3em 0;
+color: #171717;
+}
+h1 .search-page-query {
+color: var(--accent);
+}
+.search-page-count {
+color: rgb(var(--gray));
+font-size: 0.95rem;
+margin: 0 0 1.5em 0;
+}
+.search-page-hint {
+color: rgb(var(--gray));
+font-size: 0.95rem;
+}
+.search-page-results {
+display: flex;
+flex-direction: column;
+}
+.search-page-item {
+display: grid;
+grid-template-columns: 140px minmax(0, 1fr);
+gap: 16px;
+padding: 16px 0;
+border-bottom: 1px solid #e2e2e2;
+text-decoration: none;
+color: inherit;
+}
+.search-page-item:hover .search-page-title {
+color: var(--accent);
+}
+.search-page-item img,
+.search-page-noimg {
+width: 140px;
+height: 92px;
+object-fit: cover;
+border-radius: 4px;
+background: #f0f0f0;
+display: block;
+}
+.search-page-text {
+display: flex;
+flex-direction: column;
+gap: 4px;
+min-width: 0;
+}
+.search-page-cat {
+font-size: 12px;
+font-weight: 700;
+color: var(--accent);
+}
+.search-page-title {
+font-size: 17px;
+font-weight: 600;
+line-height: 1.5;
+color: #171717;
+}
+.search-page-desc {
+font-size: 13.5px;
+line-height: 1.6;
+color: rgb(var(--gray-dark));
+display: -webkit-box;
+-webkit-line-clamp: 2;
+-webkit-box-orient: vertical;
+overflow: hidden;
+}
+.search-page-date {
+font-size: 12px;
+color: rgb(var(--gray));
+}
+@media (max-width: 600px) {
+.search-page-item {
+grid-template-columns: 84px minmax(0, 1fr);
+gap: 12px;
+}
+.search-page-item img,
+.search-page-noimg {
+width: 84px;
+height: 56px;
+}
+.search-page-title {
+font-size: 15px;
+}
+}
+</style>
+</head>
+<body>
+<Header />
+<main class="search-page" data-query={query}>
+<h1>搜尋「<span class="search-page-query" id="search-page-query">{query}</span>」</h1>
+<p class="search-page-count" id="search-page-count">{query ? '搜尋中…' : '請在上方輸入搜尋關鍵字'}</p>
+<div class="search-page-results" id="search-page-results"></div>
+</main>
+<Footer />
+<script>
+import { search, type SearchDoc } from '../utils/searchEngine';
+
+const mainEl = document.querySelector('.search-page') as HTMLElement | null;
+const countEl = document.getElementById('search-page-count');
+const resultsEl = document.getElementById('search-page-results');
+const query = mainEl?.dataset.query ?? '';
+
+if (mainEl && countEl && resultsEl && query) {
+fetch('/search-index.json')
+.then((r) => (r.ok ? r.json() : []))
+.then((docs: SearchDoc[]) => {
+const results = search(docs, query, 100);
+
+if (!results.length) {
+countEl.textContent = `找不到與「${query}」相關的文章`;
+const hint = document.createElement('p');
+hint.className = 'search-page-hint';
+hint.textContent = '試試其他關鍵字';
+resultsEl.appendChild(hint);
+return;
+}
+
+countEl.textContent = `找到 ${results.length} 篇相關文章`;
+
+for (const r of results) {
+const doc = r.doc;
+const a = document.createElement('a');
+a.className = 'search-page-item';
+a.href = `/blog/${doc.slug}/`;
+
+if (doc.image) {
+const img = document.createElement('img');
+img.src = doc.image;
+img.alt = '';
+img.loading = 'lazy';
+a.appendChild(img);
+} else {
+const placeholder = document.createElement('span');
+placeholder.className = 'search-page-noimg';
+a.appendChild(placeholder);
+}
+
+const textWrap = document.createElement('span');
+textWrap.className = 'search-page-text';
+
+if (doc.categoryName) {
+const cat = document.createElement('span');
+cat.className = 'search-page-cat';
+cat.textContent = doc.categoryName;
+textWrap.appendChild(cat);
+}
+
+const titleEl = document.createElement('span');
+titleEl.className = 'search-page-title';
+titleEl.textContent = doc.title;
+textWrap.appendChild(titleEl);
+
+const descEl = document.createElement('span');
+descEl.className = 'search-page-desc';
+descEl.textContent = doc.description;
+textWrap.appendChild(descEl);
+
+const dateEl = document.createElement('span');
+dateEl.className = 'search-page-date';
+dateEl.textContent = doc.pubDate ? doc.pubDate.slice(0, 10) : '';
+textWrap.appendChild(dateEl);
+
+a.appendChild(textWrap);
+resultsEl.appendChild(a);
+}
+})
+.catch(() => {
+countEl.textContent = '搜尋時發生錯誤，請稍後再試';
+});
+}
+</script>
+</body>
+</html>
