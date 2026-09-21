@@ -1,0 +1,321 @@
+---
+---
+
+<div class="search-widget" id="search-widget">
+<button type="button" class="search-toggle" id="search-toggle" aria-label="搜尋" aria-expanded="false">
+<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+<circle cx="11" cy="11" r="7"></circle>
+<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+</svg>
+</button>
+<div class="search-panel" id="search-panel" hidden>
+<div class="search-panel-header">
+<button type="button" class="search-back" id="search-back" aria-label="關閉搜尋">
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+<line x1="18" y1="6" x2="6" y2="18"></line>
+<line x1="6" y1="6" x2="18" y2="18"></line>
+</svg>
+</button>
+<input
+type="text"
+id="search-input"
+class="search-input"
+placeholder="搜尋文章、人物、事件、關鍵字……"
+autocomplete="off"
+aria-label="搜尋文章"
+/>
+</div>
+<div class="search-results" id="search-results"></div>
+</div>
+</div>
+
+<script>
+import { search, type SearchDoc } from '../utils/searchEngine';
+
+const widget = document.getElementById('search-widget');
+const toggle = document.getElementById('search-toggle');
+const panel = document.getElementById('search-panel') as HTMLElement | null;
+const backBtn = document.getElementById('search-back');
+const input = document.getElementById('search-input') as HTMLInputElement | null;
+const resultsEl = document.getElementById('search-results');
+
+if (widget && toggle && panel && backBtn && input && resultsEl) {
+let docsPromise: Promise<SearchDoc[]> | null = null;
+
+function loadDocs(): Promise<SearchDoc[]> {
+if (!docsPromise) {
+docsPromise = fetch('/search-index.json').then((r) => (r.ok ? r.json() : []));
+}
+return docsPromise;
+}
+
+function openPanel() {
+panel!.hidden = false;
+toggle!.setAttribute('aria-expanded', 'true');
+widget!.classList.add('is-open');
+document.body.classList.add('search-open');
+loadDocs();
+setTimeout(() => input!.focus(), 0);
+}
+
+function closePanel() {
+panel!.hidden = true;
+toggle!.setAttribute('aria-expanded', 'false');
+widget!.classList.remove('is-open');
+document.body.classList.remove('search-open');
+input!.value = '';
+resultsEl!.innerHTML = '';
+}
+
+toggle.addEventListener('click', () => {
+if (panel!.hidden) openPanel();
+else closePanel();
+});
+backBtn.addEventListener('click', closePanel);
+
+document.addEventListener('click', (e) => {
+if (!panel!.hidden && widget && !widget.contains(e.target as Node)) closePanel();
+});
+
+input.addEventListener('keydown', (e) => {
+if (e.key === 'Escape') {
+closePanel();
+} else if (e.key === 'Enter') {
+const q = input!.value.trim();
+if (q) window.location.href = '/search?q=' + encodeURIComponent(q);
+}
+});
+
+function renderResults(query: string, docs: SearchDoc[]) {
+resultsEl!.innerHTML = '';
+const results = search(docs, query, 5);
+
+if (!results.length) {
+const empty = document.createElement('p');
+empty.className = 'search-empty';
+empty.textContent = `找不到與「${query}」相關的文章`;
+const hint = document.createElement('p');
+hint.className = 'search-empty-hint';
+hint.textContent = '試試其他關鍵字';
+resultsEl!.append(empty, hint);
+return;
+}
+
+for (const r of results) {
+const doc = r.doc;
+const a = document.createElement('a');
+a.className = 'search-result-item';
+a.href = `/blog/${doc.slug}/`;
+
+if (doc.image) {
+const img = document.createElement('img');
+img.src = doc.image;
+img.alt = '';
+img.loading = 'lazy';
+a.appendChild(img);
+} else {
+const placeholder = document.createElement('span');
+placeholder.className = 'search-result-noimg';
+a.appendChild(placeholder);
+}
+
+const textWrap = document.createElement('span');
+textWrap.className = 'search-result-text';
+if (doc.categoryName) {
+const cat = document.createElement('span');
+cat.className = 'search-result-cat';
+cat.textContent = doc.categoryName;
+textWrap.appendChild(cat);
+}
+const title = document.createElement('span');
+title.className = 'search-result-title';
+title.textContent = doc.title;
+textWrap.appendChild(title);
+a.appendChild(textWrap);
+
+resultsEl!.appendChild(a);
+}
+
+const viewAll = document.createElement('a');
+viewAll.className = 'search-view-all';
+viewAll.href = '/search?q=' + encodeURIComponent(query);
+viewAll.textContent = `查看全部「${query}」搜尋結果 →`;
+resultsEl!.appendChild(viewAll);
+}
+
+let debounceTimer: ReturnType<typeof setTimeout>;
+input.addEventListener('input', () => {
+clearTimeout(debounceTimer);
+const q = input!.value.trim();
+if (q.length < 2) {
+resultsEl!.innerHTML = '';
+return;
+}
+debounceTimer = setTimeout(() => {
+loadDocs().then((docs) => renderResults(q, docs));
+}, 200);
+});
+}
+</script>
+
+<style>
+.search-widget {
+position: relative;
+}
+.search-toggle {
+background: none;
+border: none;
+padding: 0.4em;
+margin: 0;
+color: rgb(var(--gray-dark));
+cursor: pointer;
+display: flex;
+align-items: center;
+line-height: 0;
+}
+.search-toggle:hover {
+color: var(--accent);
+}
+.search-panel {
+position: absolute;
+top: calc(100% + 10px);
+right: 0;
+width: 380px;
+max-width: 90vw;
+background: #fff;
+border: 1px solid #e2e2e2;
+border-radius: 8px;
+box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+z-index: 100;
+overflow: hidden;
+}
+.search-panel-header {
+display: flex;
+align-items: center;
+gap: 0.4em;
+padding: 0.6em 0.7em;
+border-bottom: 1px solid #eee;
+}
+.search-back {
+display: none;
+background: none;
+border: none;
+padding: 0.3em;
+margin: 0;
+color: rgb(var(--gray-dark));
+cursor: pointer;
+flex: none;
+line-height: 0;
+}
+.search-input {
+flex: 1;
+min-width: 0;
+border: none;
+outline: none;
+font-size: 14px;
+padding: 0.4em 0.2em;
+background: transparent;
+font-family: inherit;
+color: #171717;
+}
+.search-results {
+max-height: 60vh;
+overflow-y: auto;
+}
+.search-result-item {
+display: flex;
+gap: 0.7em;
+padding: 0.6em 0.7em;
+text-decoration: none;
+color: inherit;
+border-bottom: 1px solid #f2f2f2;
+}
+.search-result-item:hover {
+background: #fafafa;
+}
+.search-result-item img,
+.search-result-noimg {
+width: 100px;
+height: 66px;
+object-fit: cover;
+border-radius: 4px;
+flex: none;
+background: #f0f0f0;
+display: block;
+}
+.search-result-text {
+display: flex;
+flex-direction: column;
+gap: 0.25em;
+min-width: 0;
+justify-content: center;
+}
+.search-result-cat {
+font-size: 11px;
+color: var(--accent);
+font-weight: 700;
+}
+.search-result-title {
+font-size: 13.5px;
+line-height: 1.4;
+color: #171717;
+display: -webkit-box;
+-webkit-line-clamp: 2;
+-webkit-box-orient: vertical;
+overflow: hidden;
+}
+.search-view-all {
+display: block;
+text-align: center;
+padding: 0.75em;
+font-size: 12.5px;
+color: var(--accent);
+font-weight: 700;
+text-decoration: none;
+background: #fafafa;
+}
+.search-empty {
+padding: 1.2em 1em 0.2em;
+font-size: 13.5px;
+color: #171717;
+text-align: center;
+}
+.search-empty-hint {
+padding: 0 1em 1.2em;
+font-size: 12.5px;
+color: rgb(var(--gray));
+text-align: center;
+margin: 0;
+}
+@media (max-width: 767px) {
+.search-panel {
+position: fixed;
+inset: 0;
+width: 100%;
+max-width: 100%;
+border-radius: 0;
+border: none;
+display: flex;
+flex-direction: column;
+z-index: 200;
+}
+.search-back {
+display: flex;
+}
+.search-input {
+font-size: 16px;
+}
+.search-results {
+flex: 1;
+max-height: none;
+}
+.search-result-item img,
+.search-result-noimg {
+width: 84px;
+height: 56px;
+}
+}
+:global(body.search-open) {
+overflow: hidden;
+}
+</style>
