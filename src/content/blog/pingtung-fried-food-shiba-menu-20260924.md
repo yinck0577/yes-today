@@ -3,8 +3,8 @@ title: '屏東炸物店菜單照全放柴犬　Threads貼文吸引65萬次瀏覽
 description: '屏東一家炸物店在外送平台以柴犬、貓咪照片取代多項炸物實拍，特殊菜單被分享到Threads後吸引約65萬次瀏覽、3.3萬人按讚，還有消費者笑問「圖上的柴犬怎麼沒有送過來？」'
 pubDate: 'Sep 24 2026 12:00:00'
 heroImage: '/pingtung-fried-food-shiba-menu-20260924.png'
-category: 'oddities'
-featured: true
+category: 'life'
+featured: false
 ---
 
 外送平台上的餐點照片通常用來展示份量與賣相，屏東一家炸物店卻走了完全不同的路線，米血、柳葉魚、三角骨、鹹酥雞到杏鮑菇，菜單照片紛紛由柴犬、貓咪「代言」。有民眾發現後將畫面分享到Threads，截至23日已吸引約65萬次瀏覽、3.3萬人按讚，甚至有消費者在外送平台評價中笑問：「圖上的柴犬怎麼沒有送過來？」
