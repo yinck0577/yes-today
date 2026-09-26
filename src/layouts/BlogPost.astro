@@ -9,7 +9,7 @@ import { getCategoryName, SITE_TITLE } from '../consts';
 
 type Props = CollectionEntry<'blog'>['data'] & { currentId?: string };
 
-const { title, description, pubDate, updatedDate, heroImage, category, currentId, video } = Astro.props;
+const { title, description, keywords, pubDate, updatedDate, heroImage, category, currentId, video } = Astro.props;
 
 const allPosts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
@@ -62,7 +62,7 @@ const articleLD = {
 
 <html lang="zh-Hant">
 	<head>
-		<BaseHead title={title} description={description} image={heroImage} type="article" />
+		<BaseHead title={title} description={description} keywords={keywords} image={heroImage} type="article" />
 		<script type="application/ld+json" set:html={JSON.stringify(articleLD)} />
 		<style>
 			#reading-progress-bar {
