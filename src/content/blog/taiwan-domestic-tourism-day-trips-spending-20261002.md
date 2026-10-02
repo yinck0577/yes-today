@@ -5,7 +5,7 @@ keywords: ["國旅","國旅人口流失","國旅人次","國旅衰退","國旅�
 pubDate: '2026-10-02T09:00:00+08:00'
 heroImage: '/taiwan-domestic-tourism-day-trips-spending-20261002.png'
 category: 'life'
-featured: false
+featured: true
 ---
 
 「國旅沒人了」、「大家寧願出國」、「台灣住宿太貴」，近年只要碰上連假訂房率、墾丁人潮或日本旅遊話題，類似說法總會再被拿出來討論。
