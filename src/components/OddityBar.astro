@@ -1,4 +1,6 @@
 ---
+import FavoriteButton from './FavoriteButton.astro';
+
 interface OddityPost {
 	id: string;
 	title: string;
@@ -40,6 +42,7 @@ const { posts, categorySlug, categoryName } = Astro.props;
 							<span class="oddity-badge">{categoryName}</span>
 							<p class="oddity-card-title">{post.title}</p>
 						</a>
+						<FavoriteButton articleId={post.id} variant="oddity" />
 					</li>
 				))}
 			</ul>
@@ -94,6 +97,9 @@ const { posts, categorySlug, categoryName } = Astro.props;
 		display: grid;
 		grid-template-columns: repeat(5, minmax(0, 1fr));
 		gap: 16px;
+	}
+	.oddity-list li {
+		position: relative;
 	}
 	.oddity-card {
 		display: block;

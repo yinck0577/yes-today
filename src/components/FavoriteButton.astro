@@ -1,0 +1,233 @@
+---
+// Reusable 收藏 (favorite / bookmark) toggle button.
+//
+// Renders a real <button> (never a div) so it is natively keyboard and
+// screen-reader accessible. Styles are global (not Astro-scoped) because a
+// few call sites — notably the homepage "熱門文章" list, which is built
+// client-side from a JS template string — need the same classes to apply
+// outside of this component's own render tree.
+//
+// variant controls sizing/position only:
+//   'hero'    - large hero/carousel slide (positioning handled by caller wrapper)
+//   'card'    - generic overlay on a card thumbnail (needs position:relative ancestor)
+//   'list'    - "最新文章" row thumbnail (placed via CSS grid cell overlap)
+//   'oddity'  - small 奇聞軼事 card thumbnail
+//   'article' - static inline pill, used on the article page itself
+interface Props {
+	articleId: string;
+	variant?: 'hero' | 'card' | 'list' | 'oddity' | 'article';
+	class?: string;
+}
+
+const { articleId, variant = 'card', class: extraClass = '' } = Astro.props;
+const isArticle = variant === 'article';
+---
+
+<button
+	type="button"
+	class:list={['favorite-btn', `favorite-btn--${variant}`, extraClass]}
+	data-favorite-btn
+	data-article-id={articleId}
+	aria-pressed="false"
+	aria-label="收藏文章"
+>
+	<span class="favorite-btn__icon" aria-hidden="true">♡</span>
+	{isArticle && <span class="favorite-btn__label">收藏</span>}
+</button>
+
+<style is:global>
+	.favorite-btn {
+		-webkit-appearance: none;
+		appearance: none;
+		margin: 0;
+		border: none;
+		background: none;
+		box-sizing: border-box;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.3em;
+		cursor: pointer;
+		color: #767676;
+		line-height: 1;
+		transition:
+			color 0.15s ease,
+			background-color 0.15s ease,
+			border-color 0.15s ease;
+	}
+	.favorite-btn:hover {
+		color: #d6435a;
+	}
+	.favorite-btn:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
+	}
+	.favorite-btn.is-favorited {
+		color: #d6435a;
+	}
+	.favorite-btn__icon {
+		display: inline-block;
+		transform-origin: center;
+		transition: transform 0.18s ease;
+	}
+	.favorite-btn.is-animating .favorite-btn__icon {
+		transform: scale(1.18);
+	}
+
+	/* Overlay variants: card / list / oddity sit on top of a thumbnail.
+	   Visual icon stays small; the clickable box is enlarged via padding so
+	   the touch target meets ~40-44px without a visually oversized heart. */
+	.favorite-btn--card,
+	.favorite-btn--list,
+	.favorite-btn--oddity {
+		width: 40px;
+		height: 40px;
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.85);
+		backdrop-filter: blur(2px);
+		-webkit-backdrop-filter: blur(2px);
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+	}
+	.favorite-btn--card .favorite-btn__icon,
+	.favorite-btn--list .favorite-btn__icon {
+		font-size: 19px;
+	}
+	.favorite-btn--card,
+	.favorite-btn--list {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+		z-index: 3;
+	}
+
+	.favorite-btn--oddity {
+		width: 32px;
+		height: 32px;
+		position: absolute;
+		top: 6px;
+		right: 6px;
+		z-index: 3;
+	}
+	.favorite-btn--oddity .favorite-btn__icon {
+		font-size: 15px;
+	}
+
+	/* Hero: larger thumbnail, roomier button. Positioning + show/hide per
+	   active slide is handled by a wrapper element in index.astro so this
+	   stays a plain sized button. */
+	.favorite-btn--hero {
+		width: 40px;
+		height: 40px;
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.88);
+		backdrop-filter: blur(2px);
+		-webkit-backdrop-filter: blur(2px);
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+	}
+	.favorite-btn--hero .favorite-btn__icon {
+		font-size: 20px;
+	}
+
+	/* Popular list item (client-rendered, no thumbnail): static, grid-placed
+	   in index.astro's injected stylesheet via .favorite-btn--popular. */
+	.favorite-btn--popular {
+		width: 40px;
+		height: 40px;
+		border-radius: 999px;
+	}
+	.favorite-btn--popular .favorite-btn__icon {
+		font-size: 18px;
+	}
+
+	/* Article page: static inline pill next to the like/share controls. */
+	.favorite-btn--article {
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 20px;
+		padding: 0.3em 0.9em;
+		font-size: 0.9rem;
+	}
+	.favorite-btn--article.is-favorited {
+		border-color: #d6435a;
+		background: rgba(214, 67, 90, 0.08);
+	}
+	.favorite-btn--article .favorite-btn__icon {
+		font-size: 1.05rem;
+	}
+
+	@media (max-width: 767px) {
+		.favorite-btn--card,
+		.favorite-btn--list,
+		.favorite-btn--popular {
+			width: 40px;
+			height: 40px;
+		}
+		.favorite-btn--oddity {
+			width: 34px;
+			height: 34px;
+		}
+	}
+</style>
+
+<script>
+	import { isFavorite, toggleFavorite, onFavoritesChange } from '../utils/favorites';
+
+	// This script tag's content is identical across every usage of this
+	// component, so Astro bundles/dedupes it to a single module per page —
+	// but guard anyway in case that assumption ever changes.
+	if (!window.__yestodayFavoritesWired) {
+		window.__yestodayFavoritesWired = true;
+
+		const paint = (btn: HTMLElement, favorited: boolean) => {
+			btn.classList.toggle('is-favorited', favorited);
+			btn.setAttribute('aria-pressed', favorited ? 'true' : 'false');
+			btn.setAttribute('aria-label', favorited ? '取消收藏' : '收藏文章');
+			const icon = btn.querySelector('.favorite-btn__icon');
+			if (icon) icon.textContent = favorited ? '♥' : '♡';
+			const label = btn.querySelector('.favorite-btn__label');
+			if (label) label.textContent = favorited ? '已收藏' : '收藏';
+		};
+
+		const paintAll = (articleId?: string | null) => {
+			const selector = articleId
+				? `[data-favorite-btn][data-article-id="${CSS.escape(articleId)}"]`
+				: '[data-favorite-btn]';
+			document.querySelectorAll<HTMLElement>(selector).forEach((btn) => {
+				const id = btn.getAttribute('data-article-id');
+				if (id) paint(btn, isFavorite(id));
+			});
+		};
+
+		// Initial paint happens client-side only (after hydration), so the
+		// server-rendered outline heart is always the first paint — no
+		// SSR/CSR mismatch, no flash of mismatched state.
+		paintAll();
+
+		// Expose for call sites that inject cards after this script already
+		// ran (the homepage "熱門文章" list resolves its view-count fetch
+		// asynchronously and rewrites its own innerHTML).
+		window.__yestodayPaintFavorites = paintAll;
+
+		// One delegated listener for the whole document — works for every
+		// card everywhere, including markup injected later, without each
+		// card registering its own listener.
+		document.addEventListener('click', (e) => {
+			const target = e.target as HTMLElement | null;
+			const btn = target?.closest<HTMLElement>('[data-favorite-btn]');
+			if (!btn) return;
+			e.preventDefault();
+			e.stopPropagation();
+			const id = btn.getAttribute('data-article-id');
+			if (!id) return;
+			toggleFavorite(id);
+			paintAll(id);
+			btn.classList.add('is-animating');
+			window.setTimeout(() => btn.classList.remove('is-animating'), 180);
+		});
+
+		// Cross-tab sync (storage event) + same-tab sync (custom event),
+		// one shared subscription for the whole page.
+		onFavoritesChange((articleId) => {
+			paintAll(articleId);
+		});
+	}
+</script>
