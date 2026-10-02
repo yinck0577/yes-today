@@ -5,6 +5,7 @@ import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
+import FavoriteButton from '../components/FavoriteButton.astro';
 import { getCategoryName, SITE_TITLE } from '../consts';
 
 type Props = CollectionEntry<'blog'>['data'] & { currentId?: string };
@@ -590,6 +591,7 @@ const articleLD = {
 							<span class="like-icon" aria-hidden="true">♡</span>
 							<span class="like-count" id="like-count">0</span>
 						</button>
+						{currentId && <FavoriteButton articleId={currentId} variant="article" />}
 						<div class="share-buttons">
 							<a id="share-fb" class="share-btn fb" href="#" target="_blank" rel="noopener">分享到 Facebook</a>
 							<a id="share-line" class="share-btn line" href="#" target="_blank" rel="noopener">分享到 LINE</a>
