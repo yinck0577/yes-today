@@ -5,7 +5,7 @@ keywords: ["輝達股價","NVIDIA","台積電","鴻海","聯發科","緯創","Ve
 pubDate: '2026-10-05T09:00:00+08:00'
 heroImage: '/nvidia-record-stock-taiwan-tsmc-foxconn-mediatek-rubin-20261005.png'
 category: 'tech'
-featured: false
+featured: true
 ---
 
 輝達（NVIDIA）股價10月2日盤中最高來到**237.88美元**，再創歷史新高；終場上漲1.34%，收在233.95美元，市值約5.64兆美元。雖然收盤價仍略低於5月創下的235.74美元紀錄，但隨著AI資料中心需求持續成長、Vera Rubin正式進入出貨階段，市場焦點已逐漸從Blackwell轉向下一代平台。
