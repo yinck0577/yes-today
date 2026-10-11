@@ -5,7 +5,7 @@ keywords: ["麥味登","揚秦","麥味登母公司","揚秦旗下品牌","麥�
 pubDate: '2026-10-11T12:00:00+08:00'
 heroImage: '/my-warm-day-thousand-stores-ai-yangqin-20261011.png'
 category: 'business'
-featured: false
+featured: true
 ---
 
 早上趕著上班，打開手機點一份蛋餅、奶茶，到店直接取餐。對消費者而言，只是省下排隊等早餐的時間；對擁有超過千家門市的連鎖品牌來說，每一筆訂單都可能成為預測銷量、調整備料、安排人力，甚至決定下一家店開在哪裡的依據。
