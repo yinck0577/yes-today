@@ -1,0 +1,459 @@
+---
+export interface Props {
+	src: string;
+	title: string;
+	type?: 'human' | 'ai';
+}
+
+const { src, title, type = 'human' } = Astro.props;
+const badgeLabel = type === 'ai' ? '文章音訊｜AI 語音朗讀' : '文章音訊｜真人講述';
+---
+
+<div class="audio-player" data-audio-player data-audio-title={title}>
+	<div class="audio-player__head">
+		<span class="audio-player__badge">{badgeLabel}</span>
+		<p class="audio-player__title">{title}</p>
+	</div>
+
+	<div class="audio-player__controls">
+		<button type="button" class="audio-player__play" data-play-btn aria-label="播放音訊">
+			<svg class="icon icon-play" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+				<path d="M8 5v14l11-7z" fill="currentColor"></path>
+			</svg>
+			<svg class="icon icon-pause" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" hidden>
+				<path d="M6 5h4v14H6zm8 0h4v14h-4z" fill="currentColor"></path>
+			</svg>
+			<svg class="icon icon-spinner" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" hidden>
+				<path
+					d="M12 2a10 10 0 1 0 10 10"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2.5"
+					stroke-linecap="round"
+				></path>
+			</svg>
+		</button>
+
+		<div class="audio-player__timeline">
+			<input
+				type="range"
+				class="audio-player__seek"
+				data-seek
+				min="0"
+				max="1000"
+				value="0"
+				step="1"
+				aria-label="播放進度"
+				disabled
+			/>
+		</div>
+
+		<span class="audio-player__time" data-time aria-live="off">00:00 / --:--</span>
+
+		<button
+			type="button"
+			class="audio-player__speed"
+			data-speed-btn
+			aria-label="播放速度，目前 1 倍速，點擊切換"
+		>
+			<span data-speed-label>1×</span>
+		</button>
+	</div>
+
+	<p class="audio-player__status" data-status role="status" hidden></p>
+
+	<audio data-audio-el preload="metadata" src={src}></audio>
+</div>
+
+<style is:global>
+	.audio-player {
+		width: 100%;
+		box-sizing: border-box;
+		margin: 0 0 1.5em 0;
+		padding: 0.9em 1.1em;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 14px;
+		background: #fafbff;
+	}
+	.audio-player__head {
+		margin-bottom: 0.7em;
+	}
+	.audio-player__badge {
+		display: inline-block;
+		font-size: 0.72rem;
+		font-weight: 700;
+		letter-spacing: 0.02em;
+		color: var(--accent);
+	}
+	.audio-player__title {
+		margin: 0.25em 0 0 0;
+		font-size: 0.98rem;
+		font-weight: 600;
+		line-height: 1.4;
+		color: rgb(var(--gray-dark));
+		overflow-wrap: break-word;
+	}
+	.audio-player__controls {
+		display: flex;
+		align-items: center;
+		gap: 0.8em;
+	}
+	.audio-player__play {
+		flex: none;
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		border: none;
+		background: var(--accent);
+		color: #fff;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		padding: 0;
+	}
+	.audio-player__play:hover {
+		background: var(--accent-dark);
+	}
+	.audio-player__play:disabled {
+		opacity: 0.55;
+		cursor: default;
+	}
+	.audio-player__play .icon[hidden] {
+		/* Chromium's default UA stylesheet does not reliably apply the
+		   [hidden] -> display:none rule to inline <svg> elements, so it is
+		   restated explicitly here as an author rule. */
+		display: none;
+	}
+	.audio-player__play .icon-play {
+		margin-left: 2px;
+	}
+	.audio-player__play .icon-spinner {
+		animation: audio-player-spin 0.9s linear infinite;
+	}
+	@keyframes audio-player-spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+	.audio-player__timeline {
+		flex: 1 1 auto;
+		min-width: 0;
+		display: flex;
+		align-items: center;
+	}
+	.audio-player__seek {
+		width: 100%;
+		height: 20px;
+		margin: 0;
+		appearance: none;
+		-webkit-appearance: none;
+		background: transparent;
+		cursor: pointer;
+	}
+	.audio-player__seek:disabled {
+		cursor: default;
+	}
+	.audio-player__seek::-webkit-slider-runnable-track {
+		height: 4px;
+		border-radius: 2px;
+		background: linear-gradient(
+			to right,
+			var(--accent) 0%,
+			var(--accent) var(--audio-progress, 0%),
+			rgb(var(--gray-light)) var(--audio-progress, 0%),
+			rgb(var(--gray-light)) 100%
+		);
+	}
+	.audio-player__seek::-moz-range-track {
+		height: 4px;
+		border-radius: 2px;
+		background: rgb(var(--gray-light));
+	}
+	.audio-player__seek::-moz-range-progress {
+		height: 4px;
+		border-radius: 2px;
+		background: var(--accent);
+	}
+	.audio-player__seek::-webkit-slider-thumb {
+		appearance: none;
+		-webkit-appearance: none;
+		width: 14px;
+		height: 14px;
+		margin-top: -5px;
+		border-radius: 50%;
+		background: var(--accent);
+		border: 2px solid #fff;
+		box-shadow: 0 0 0 1px rgb(var(--gray-light));
+	}
+	.audio-player__seek::-moz-range-thumb {
+		width: 14px;
+		height: 14px;
+		border-radius: 50%;
+		background: var(--accent);
+		border: 2px solid #fff;
+		box-shadow: 0 0 0 1px rgb(var(--gray-light));
+	}
+	.audio-player__seek:focus-visible::-webkit-slider-thumb {
+		outline: 2px solid var(--accent-dark);
+		outline-offset: 2px;
+	}
+	.audio-player__time {
+		flex: none;
+		font-size: 0.78rem;
+		font-variant-numeric: tabular-nums;
+		color: rgb(var(--gray));
+		white-space: nowrap;
+	}
+	.audio-player__speed {
+		flex: none;
+		min-width: 2.6em;
+		padding: 0.3em 0.55em;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 20px;
+		background: #fff;
+		color: rgb(var(--gray-dark));
+		font-size: 0.78rem;
+		font-weight: 600;
+		cursor: pointer;
+	}
+	.audio-player__speed:hover {
+		border-color: var(--accent);
+		color: var(--accent);
+	}
+	.audio-player__status {
+		margin: 0.6em 0 0 0;
+		font-size: 0.8rem;
+		color: #c0392b;
+	}
+	.audio-player__status[data-retry] {
+		cursor: pointer;
+		text-decoration: underline;
+	}
+	.audio-player audio {
+		display: none;
+	}
+
+	@media (max-width: 480px) {
+		.audio-player__controls {
+			flex-wrap: wrap;
+		}
+		.audio-player__timeline {
+			order: 3;
+			flex: 1 1 100%;
+			width: 100%;
+		}
+		.audio-player__time {
+			order: 4;
+			flex: 1 1 auto;
+		}
+		.audio-player__speed {
+			order: 5;
+		}
+	}
+</style>
+
+<script>
+	function formatTime(seconds: number): string {
+		if (!Number.isFinite(seconds) || seconds < 0) return '--:--';
+		const total = Math.floor(seconds);
+		const m = Math.floor(total / 60);
+		const s = total % 60;
+		return `${m}:${String(s).padStart(2, '0')}`;
+	}
+
+	const RATES = [1, 1.25, 1.5, 2];
+
+	function wireAudioPlayer(root: HTMLElement) {
+		if ((root as any).__wired) return;
+		(root as any).__wired = true;
+
+		const audio = root.querySelector<HTMLAudioElement>('[data-audio-el]');
+		const playBtn = root.querySelector<HTMLButtonElement>('[data-play-btn]');
+		const seek = root.querySelector<HTMLInputElement>('[data-seek]');
+		const timeEl = root.querySelector<HTMLElement>('[data-time]');
+		const speedBtn = root.querySelector<HTMLButtonElement>('[data-speed-btn]');
+		const speedLabel = root.querySelector<HTMLElement>('[data-speed-label]');
+		const statusEl = root.querySelector<HTMLElement>('[data-status]');
+		const iconPlay = root.querySelector<SVGElement>('.icon-play');
+		const iconPause = root.querySelector<SVGElement>('.icon-pause');
+		const iconSpinner = root.querySelector<SVGElement>('.icon-spinner');
+
+		if (!audio || !playBtn || !seek || !timeEl || !speedBtn || !speedLabel || !statusEl) return;
+
+		let rateIndex = 0;
+		let userSeeking = false;
+		let hasPlayedOnce = false;
+
+		function showIcon(which: 'play' | 'pause' | 'spinner') {
+			iconPlay?.toggleAttribute('hidden', which !== 'play');
+			iconPause?.toggleAttribute('hidden', which !== 'pause');
+			iconSpinner?.toggleAttribute('hidden', which !== 'spinner');
+		}
+
+		function setStatus(message: string | null, retry = false) {
+			if (!message) {
+				statusEl!.hidden = true;
+				statusEl!.textContent = '';
+				statusEl!.removeAttribute('data-retry');
+				return;
+			}
+			statusEl!.hidden = false;
+			statusEl!.textContent = message;
+			if (retry) statusEl!.setAttribute('data-retry', '');
+			else statusEl!.removeAttribute('data-retry');
+		}
+
+		function updateTimeDisplay() {
+			const dur = audio!.duration;
+			const cur = audio!.currentTime;
+			timeEl!.textContent = `${formatTime(cur)} / ${Number.isFinite(dur) ? formatTime(dur) : '--:--'}`;
+			if (!userSeeking && Number.isFinite(dur) && dur > 0) {
+				const pct = (cur / dur) * 1000;
+				seek!.value = String(pct);
+				root.style.setProperty('--audio-progress', `${(pct / 10).toFixed(2)}%`);
+			}
+		}
+
+		audio.addEventListener('loadedmetadata', () => {
+			seek.disabled = false;
+			updateTimeDisplay();
+		});
+
+		audio.addEventListener('timeupdate', updateTimeDisplay);
+
+		audio.addEventListener('waiting', () => {
+			if (hasPlayedOnce) showIcon('spinner');
+		});
+
+		audio.addEventListener('playing', () => {
+			showIcon('pause');
+			setStatus(null);
+		});
+
+		audio.addEventListener('play', () => {
+			showIcon('pause');
+			playBtn!.setAttribute('aria-label', '暫停音訊');
+		});
+
+		audio.addEventListener('pause', () => {
+			showIcon('play');
+			playBtn!.setAttribute('aria-label', '播放音訊');
+		});
+
+		audio.addEventListener('ended', () => {
+			showIcon('play');
+			playBtn!.setAttribute('aria-label', '播放音訊');
+		});
+
+		audio.addEventListener('error', () => {
+			showIcon('play');
+			playBtn!.removeAttribute('disabled');
+			const code = audio.error?.code;
+			let message = '音訊載入失敗，請稍後再試。';
+			if (code === MediaError.MEDIA_ERR_NETWORK) message = '網路發生問題，音訊載入失敗。點此重試。';
+			else if (code === MediaError.MEDIA_ERR_DECODE || code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED) {
+				message = '音訊檔案格式無法播放。點此重試。';
+			} else {
+				message = '音訊載入失敗，請稍後再試。點此重試。';
+			}
+			setStatus(message, true);
+		});
+
+		statusEl.addEventListener('click', () => {
+			if (!statusEl.hasAttribute('data-retry')) return;
+			setStatus(null);
+			audio.load();
+			playBtn.removeAttribute('disabled');
+		});
+
+		playBtn.addEventListener('click', () => {
+			if (audio.paused) {
+				hasPlayedOnce = true;
+				playBtn.setAttribute('disabled', '');
+				showIcon('spinner');
+				const playPromise = audio.play();
+				if (playPromise && typeof playPromise.then === 'function') {
+					playPromise
+						.then(() => {
+							playBtn.removeAttribute('disabled');
+						})
+						.catch(() => {
+							playBtn.removeAttribute('disabled');
+							showIcon('play');
+							setStatus('無法播放音訊，請再按一次播放。', false);
+						});
+				} else {
+					playBtn.removeAttribute('disabled');
+				}
+			} else {
+				audio.pause();
+			}
+		});
+
+		seek.addEventListener('input', () => {
+			userSeeking = true;
+			const dur = audio.duration;
+			if (Number.isFinite(dur) && dur > 0) {
+				const pct = Number(seek.value) / 1000;
+				timeEl.textContent = `${formatTime(pct * dur)} / ${formatTime(dur)}`;
+				root.style.setProperty('--audio-progress', `${(Number(seek.value) / 10).toFixed(2)}%`);
+			}
+		});
+		seek.addEventListener('change', () => {
+			const dur = audio.duration;
+			if (Number.isFinite(dur) && dur > 0) {
+				audio.currentTime = (Number(seek.value) / 1000) * dur;
+			}
+			userSeeking = false;
+		});
+
+		speedBtn.addEventListener('click', () => {
+			rateIndex = (rateIndex + 1) % RATES.length;
+			const rate = RATES[rateIndex];
+			audio.playbackRate = rate;
+			speedLabel!.textContent = `${rate}×`;
+			speedBtn.setAttribute('aria-label', `播放速度，目前 ${rate} 倍速，點擊切換`);
+		});
+
+		// Media Session API: lets Android/iOS lock-screen and OS media
+		// controls show the title and drive play/pause/seek, and lets
+		// playback continue in the background where the platform allows it.
+		if ('mediaSession' in navigator) {
+			audio.addEventListener('play', () => {
+				try {
+					navigator.mediaSession.metadata = new MediaMetadata({
+						title: root.dataset.audioTitle || document.title,
+						artist: 'Yes Today',
+						album: 'Yes Today',
+					});
+					navigator.mediaSession.playbackState = 'playing';
+					navigator.mediaSession.setActionHandler('play', () => audio.play());
+					navigator.mediaSession.setActionHandler('pause', () => audio.pause());
+					navigator.mediaSession.setActionHandler('seekto', (details: any) => {
+						if (details && typeof details.seekTime === 'number') {
+							audio.currentTime = details.seekTime;
+						}
+					});
+				} catch {
+					// Media Session isn't available/allowed in this context; the
+					// custom UI controls still work normally without it.
+				}
+			});
+			audio.addEventListener('pause', () => {
+				try {
+					navigator.mediaSession.playbackState = 'paused';
+				} catch {
+					/* noop */
+				}
+			});
+		}
+	}
+
+	function wireAll() {
+		document.querySelectorAll<HTMLElement>('[data-audio-player]').forEach(wireAudioPlayer);
+	}
+
+	wireAll();
+	document.addEventListener('astro:page-load', wireAll);
+</script>
