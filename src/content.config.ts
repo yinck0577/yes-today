@@ -23,6 +23,22 @@ const blog = defineCollection({
 		// Optional short vertical video (e.g. 9:16 mp4) shown between the title
 		// block and the article body. Not every post has one.
 		video: z.string().optional(),
+		// Optional article audio narration (human-read or AI-read MP3). The
+		// player only renders when `enabled` is true AND `url` is set; any
+		// other combination falls back to the normal, audio-less layout.
+		audio: z
+			.object({
+				enabled: z.boolean().optional(),
+				// 'human' = 真人講述, 'ai' = AI 語音朗讀
+				type: z.enum(['human', 'ai']).optional(),
+				// Falls back to the article title when omitted.
+				title: z.string().optional(),
+				// MP3 URL - can be a Cloudflare R2 public URL, or any other
+				// valid https URL. Not validated as a URL so relative /public
+				// paths also work during local development.
+				url: z.string().optional(),
+			})
+			.optional(),
 	}),
 });
 
