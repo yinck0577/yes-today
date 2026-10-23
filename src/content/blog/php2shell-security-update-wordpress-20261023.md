@@ -5,7 +5,7 @@ keywords: ["PHP2Shell","PHP漏洞","PHP資安漏洞","CVE-2026-109618","CVE-2026
 pubDate: '2026-10-23T12:00:00+08:00'
 heroImage: '/php2shell-security-update-wordpress-20261023.png'
 category: 'tech'
-featured: false
+featured: true
 ---
 
 全球廣泛使用的網站程式語言PHP爆發重大資安事件。PHP開發團隊於2026年10月21日緊急發布安全更新，修補兩項可能讓攻擊者在未經登入的情況下，遠端執行惡意程式的漏洞，兩者風險評分均達**CVSS v4.0的9.2分，屬於重大等級（Critical）**。
