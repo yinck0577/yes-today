@@ -5,7 +5,7 @@ keywords: ["Anthropic IPO","Anthropic上市","Claude上市","Anthropic股票","A
 pubDate: '2026-10-27T12:00:00+08:00'
 heroImage: '/anthropic-ipo-claude-revenue-net-loss-20261027.png'
 category: 'tech'
-featured: false
+featured: true
 ---
 
 開發Claude人工智慧模型的美國公司Anthropic，於2026年10月26日正式公開首次公開募股（IPO）招股文件，計畫以股票代號「ANT」在那斯達克交易所上市。這份文件首次讓外界得以詳細檢視Anthropic的營收、成本、現金流與公司治理架構。
