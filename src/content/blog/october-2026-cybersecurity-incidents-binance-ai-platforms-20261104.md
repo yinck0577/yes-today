@@ -5,7 +5,7 @@ keywords: ["2026資安事件","幣安被駭","Railway被駭","LiteLLM","Cursor�
 pubDate: '2026-11-04T12:00:00+08:00'
 heroImage: '/october-2026-cybersecurity-incidents-binance-ai-platforms-20261104.png'
 category: 'tech'
-featured: false
+featured: true
 ---
 
 10月是全球資安意識月（Cybersecurity Awareness Month），科技圈卻接連傳出重大安全事故。加密貨幣交易所幣安（Binance）遭竊約64億美元資產、日本遊戲公司Capcom確認超過1,177萬筆帳戶紀錄外洩，AI開發平台Railway、OpenCode與Fireworks AI也相繼揭露內部系統或憑證遭到未授權存取。
